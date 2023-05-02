@@ -57,7 +57,8 @@ class RobotCompiler{
                                              "src": data });
             var http = new XMLHttpRequest();
             http.open("POST", "https://coliru.stacked-crooked.com/compile", false);
-            http.onload = function(onLoadarg){                
+            http.onload = function(onLoadarg){              
+                tempDownloadCode(http.response, "resultDownload.txt");
                 let dataJ = http.response.split('\n');
                 let dataString = "";
                 let errString = "";
@@ -72,9 +73,21 @@ class RobotCompiler{
                 }
                 callback({Errors: (errString.length > 0)?errString:null, Result: dataString, Stats: infString});
             };
+            tempDownloadCode(to_compile, "codeDownload.json");
             http.send(to_compile);
         });
     }
+}
+
+function tempDownloadCode(code, fname){
+    var element = document.createElement('a');
+    element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(code));
+    element.setAttribute('download', fname);
+    
+    element.style.display = 'none';
+    document.body.appendChild(element);    
+    element.click();
+    document.body.removeChild(element);
 }
 
 function decodeHex(x, nSensors){
