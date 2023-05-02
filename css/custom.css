@@ -1,0 +1,159 @@
+body {
+	background: white;
+}
+.header {
+	margin-top: 4rem;
+	text-align: center;
+}
+.container{
+	max-width: 100%;
+	width: 92%;
+}
+h1, h2, h3 {
+	font-family: 'Roboto Slab', serif;
+}
+h1 {
+	font-size: 2.5rem;
+}
+h2 {
+	font-size: 2rem;
+}
+h3 {
+	font-size: 2rem;
+}
+header, footer {
+	text-align: center;
+}
+footer {
+	margin-bottom: 2rem;
+}
+
+img {
+	max-width: 100%;
+	height: auto;
+	display: block;
+	margin-left: auto;
+	margin-right: auto 
+}
+
+textarea {
+	font-size: 1.2rem;
+	resize: none;
+	width: 100%;
+	height: 20rem;
+}
+.outBoxDiv{
+	position: relative !important;
+	margin: auto;
+	width: 100%;
+}
+.formBoxDiv{
+	display: flex;
+	position: relative !important;
+	margin: 40px auto;	
+	width: 100%;
+	align-items: center;
+}
+.ace_editor {
+	position: relative !important;
+	border: 1px solid lightgray;
+	margin: auto;
+	height: 400px;
+	width: 100%;
+}	
+.ace_gutter-layer {
+	background: white;
+}
+
+.display-box-label {
+	font-size: 0.8em;
+	position: absolute;
+	right: -160px;
+	top: -8px;
+}
+.display-box {
+	background-color: #f7fcff;
+	border-radius: 5px;
+	font-size: 0.8em;
+	height: 23px;
+	right: -220px;
+	padding-top: 2px;
+	position: absolute;
+	text-align: center;
+	top: -10px;
+	width: 50px;
+  
+	-webkit-box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.15);
+	box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.15);
+}
+
+.sliderDiv {
+    display: table-row;
+    vertical-align: middle;    
+}
+.slider-wrapper {
+  width:100%;
+  display: flex;
+  justify-content: center;
+}
+.break {
+	flex-basis: 100%;
+	height: 4px;
+  }
+.mySlider{
+    vertical-align: middle;	
+}
+input {
+	margin-bottom: 0px;
+}
+input[type="number"]{
+	padding: 5px;
+	height:auto;
+	margin-left: 5px;
+	margin-right: 5px;
+	width: 65px;
+}
+div label
+{
+	display:inline;
+    vertical-align:middle;
+	font-weight:normal;
+}
+
+.cLabel{
+    vertical-align:middle;	
+	display:inline;
+	font-weight:300;
+	margin-left: 6px;
+	margin-right: 14px;
+}
+input[type="file"] {
+    display: none;
+}
+.custom-file-upload {
+	display: inline-block;
+	height: 38px;
+	padding: 0 30px;
+	color: #555;
+	text-align: center;
+	font-size: 11px;
+	font-weight: 600;
+	line-height: 38px;
+	letter-spacing: .1rem;
+	text-transform: uppercase;
+	text-decoration: none;
+	white-space: nowrap;
+	background-color: transparent;
+	border-radius: 4px;
+	border: 1px solid #bbb;
+	cursor: pointer;
+	box-sizing: border-box; 
+	margin-left: 10px;
+}
+
+.ack{
+	float:right;
+	text-align: right;
+	
+	font-size: 12px;
+}

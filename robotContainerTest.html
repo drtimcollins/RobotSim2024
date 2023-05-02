@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Robot Simulator Container Test</title>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+</head>
+<body>
+	<div style="width:100%; background-color: coral; height:100px;"></div>
+		<div style="width:100%; background-color: coral;">
+		<div style="width:80%">
+<!--START PASTABLE CODE-->
+
+<div id="progress" style="font-family: 'Roboto', Helvetica, Arial, sans-serif;	
+	font-size: 16px; font-weight: bold;
+	position: fixed; top: 100px; z-index: 100; text-align: center; display: none;">
+	<div style="margin:auto; background-color: #ffffff; border-radius: 25px; border: 3px solid #14b0c5; width: 220px;">
+		<div id="progressGif"><img src="img/progress.gif"></div>
+		<div id="message" style="padding-bottom: 10px;">Compiling ...</div>      
+	</div>	
+</div>
+<iframe id="timsIframe" height="300px" width="100%" style="border-style:none;" src="robotSimulator.html">
+	Your browser does not display iFrames
+</iframe>
+<script type="text/javascript">
+	window.addEventListener("message", (event) => {
+		console.log("Message");
+		console.log(event.data);
+		if (event.data == 0) {
+			var rect = $("#timsIframe").get(0).getBoundingClientRect();
+			var bodyRect = document.body.getBoundingClientRect();
+			//window.scrollTo(0, rect.top - bodyRect.top - 50);
+			//console.log("iframe top: " + rect.top.toString());
+			//console.log("win top: " + bodyRect.top.toString());
+			//console.log("New Pos: " + (rect.top - bodyRect.top - 50).toString());
+			window.scrollTo(0, rect.top - bodyRect.top - 150);
+		} else if(event.data == -1){
+			$("#progress").hide();
+		} else if(event.data == -2){
+			$("#progress").show();
+		} else {
+			$('#timsIframe').height(50 + event.data);
+		}
+	});
+	function onResize(){
+		//console.log("Outer on resize called.");
+		let rect = $("#timsIframe").get(0).getBoundingClientRect();
+		//console.log("Left: " + rect.width.toString());
+		$("#progress").css("top",$(window).height()/4);
+		$("#progress").css("left",(rect.left + rect.right)/2 - 110);
+	}
+	$(document).ready(function(){$(window).resize(onResize);onResize();});	
+</script>
+
+<!--END PASTABLE CODE-->
+		</div>
+	</div>
+</body>
