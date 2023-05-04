@@ -80,6 +80,8 @@ $(function(){
        console.log("IINPUTT");
     });
 
+//    brython();
+//    pyTest("Test data");
     stats = new Stats();
     //$("#renderWin").append(stats.dom);
 

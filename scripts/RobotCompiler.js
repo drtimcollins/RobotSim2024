@@ -37,6 +37,8 @@ class RobotCompiler{
     }
 
     exe(fn, callback){
+        runPyCode(this, fn);
+
         var cpp = this;
          $.get("scripts/RobotSrc.cpp", function (data){
             data = data.replace("#define DEFINES",
