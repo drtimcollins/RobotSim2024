@@ -35,8 +35,79 @@ class RobotCompiler{
     updateParams(params){
         this.bot = params;      
     }
+    getSensorOutput(z){
+        return 0;
+    }
 
     exe(fn, callback){
+        let width = this.bot.width;
+        let rlength = this.bot.length;
+        let NumberOfSensors = this.bot.NumberOfSensors;
+        let SensorSpacing = this.bot.SensorSpacing;
+        let WheelRadius = this.bot.WheelRadius;
+        let XSTART = this.start.x - rlength;
+        let YSTART = this.start.y;
+        let ISTART = this.startIndex;
+        let black_threshold = 100;
+
+        let bearing = math.complex(1.0, 0);
+        let R = math.complex(1.0, 0);
+        let L = math.complex(1.0, 0);
+        let speed = math.complex(1000, 0); // TESTING (should be 0,0)
+        let av = math.complex(0, 0);
+        let xy = math.complex(XSTART, YSTART);
+        let vv, cFront;
+        let j = math.complex(0, 1);
+        let sensorPos = Array(NumberOfSensors);
+        let an = Array(NumberOfSensors);
+        let N = this.track.length;
+        let isLapValid = false;
+
+        let response = "###OK###\n";
+        for(let n = 0; n < NumberOfSensors; n++) {
+            sensorPos[n] = math.complex(rlength, (n - (NumberOfSensors-1.0)/2.0)*SensorSpacing);
+        }
+        let iTrack = 0;
+        for(let n = 0; n < 3000; n++){
+            // Update sensors
+            for(let m = 0; m < NumberOfSensors; m++) {
+                let sn = math.add(math.multiply(sensorPos[m], bearing) , xy); 
+                an[m] = this.getSensorOutput(sn);
+            } 
+            // Process
+            av = math.add(math.multiply(av,0.92), math.multiply(speed,0.08));
+            vv = math.multiply(bearing, WheelRadius*(av.re + av.im)/2.0);            
+            bearing = math.multiply(bearing, math.Complex.fromPolar(1, WheelRadius*(av.re-av.im)/width));
+            cFront = math.add(xy, math.multiply(bearing, rlength));
+            // TODO Lap-valid checking
+            //
+            //
+            //
+            xy = math.add(xy, vv);
+            L = math.multiply(L, math.Complex.fromPolar(1, -av.re)); // wheel speed is av rad/frame = 50av rad/s
+            R = math.multiply(R, math.Complex.fromPolar(1, -av.im));
+            response = response + this.toHex(); // TODO....
+        }
+        
+        let dataJ = response.split('\n');
+        let dataString = "";
+        let errString = "";
+        let infString = "";
+        if(dataJ[0] == "###OK###"){
+            dataJ.forEach(x => {
+                if(x != "###OK###")
+                    dataString += x; //decodeHex(x, cpp.bot.NumberOfSensors);
+            });
+        } else {
+            errString = response;
+        }
+
+        console.log("NEW exe running");
+        callback({Errors: null, Result: "", Stats: ""});
+        
+    }
+
+    exe_oldcpp(fn, callback){
         var cpp = this;
          $.get("scripts/RobotSrc.cpp", function (data){
             data = data.replace("#define DEFINES",
