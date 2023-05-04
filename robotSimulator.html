@@ -18,11 +18,14 @@
 	<script src="https://cdn.jsdelivr.net/npm/three@0.139.2/examples/js/loaders/PLYLoader.js"></script>
 	<script src="https://cdn.jsdelivr.net/npm/three@0.139.2/examples/js/utils/BufferGeometryUtils.js"></script>
 	<!--<script src="https://cdn.jsdelivr.net/npm/three@0.139.2/examples/js/libs/stats.min.js"></script>-->
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/brython@3.11.0/brython.min.js"></script>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/brython@3.11.0/brython_stdlib.js"></script>
 	<script type="module" src="scripts/RobotSimulator.js"></script>
+	<script type="text/python" id="py" src="scripts/RobotCompiler.py"></script>
 	<meta charset="utf-8" />
 </head>
 
-<body>
+<body onload="brython()">
 <div class="container">
 <!--	<section class="header">
 		<h1 class="title">Line Following Robot Simulation</h1>
