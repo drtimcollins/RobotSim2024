@@ -5,11 +5,12 @@ import { RobotScene } from './RobotScene.js';
 import { RobotSim } from './RobotSim.js';
 import { RobotGui } from './RobotGui.js';
 import { SmartCam } from './SmartCam.js';
-import { RobotCompiler } from './RobotCompiler.js';
+import { RobotCompiler, logType } from './RobotCompiler.js';
 import { Stats } from './Stats.js';
 
 const dispMode = {DESIGN:1, RACE:2};
 var dmode = dispMode.DESIGN;
+
 
 var camera, scene, renderer, gui, clk, cpp;
 
@@ -311,11 +312,27 @@ function runCode(trackIndex){
             cpp.exe(editor.getValue(), function(data){
                 if(data.Errors == null){
                     $('#coutBox').text(data.Stats);
-                    const recStr = data.Result;
-                    let recItems = recStr.split(/\r?\n/);
+//                    const recStr = data.Result;
+//                    let recItems = recStr.split(/\r?\n/);
+
                     rec = [];
                     laps = [];
-                    recItems.forEach(rItem => {
+                    data.Result.forEach(rItem => {
+                        switch(rItem.log){
+                            case logType.OK:
+                                $('#coutBox').text($('#coutBox').text() + "\nCompilation OK\n");
+                                break;
+                            case logType.LAP:
+                                laps.push(rItem.time);
+                                break;
+                            case logType.POSE:
+                                rec.push({pose: $.extend(true,{},rItem)});
+                                break;
+                        }
+
+                    });
+
+/*                    recItems.forEach(rItem => {
                         let recDat = rItem.split(' ');
                         if(recDat.length == 2){
                             laps.push(parseInt(recDat[1]));
@@ -328,8 +345,8 @@ function runCode(trackIndex){
                             for(var n = 0; n < cpp.bot.NumberOfSensors; n++)
                                 pose.an[n] = (recDat[8+n] == "0") ? 0 : 0xFFFFFF;
                             rec.push({pose: $.extend(true,{},pose)});
-                        }
-                    });
+                        }                    });*/
+
                     lastTime = -100;
                     bestTime = 100000;
                     isRaceOver = false;

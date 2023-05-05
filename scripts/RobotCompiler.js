@@ -1,5 +1,5 @@
 //import { MAXSENSORS } from './RobotSimulator.js';
-
+const logType = {OK:1, POSE:2, LAP:3};
 class RobotCompiler{
 	constructor(){
         this.isInit = false;
@@ -39,7 +39,12 @@ class RobotCompiler{
         return 0;
     }
 
+    toComplex(p){ // Convert THREE.Vector2 to math.complex
+        return new math.complex(p.x, p.y);
+    }
+
     exe(fn, callback){
+        console.log("NEW exe running");
         let width = this.bot.width;
         let rlength = this.bot.length;
         let NumberOfSensors = this.bot.NumberOfSensors;
@@ -53,17 +58,17 @@ class RobotCompiler{
         let bearing = math.complex(1.0, 0);
         let R = math.complex(1.0, 0);
         let L = math.complex(1.0, 0);
-        let speed = math.complex(1000, 0); // TESTING (should be 0,0)
+        let speed = math.complex(0.05, 0.1); // TESTING (should be 0,0)
         let av = math.complex(0, 0);
         let xy = math.complex(XSTART, YSTART);
         let vv, cFront;
-        let j = math.complex(0, 1);
+        //let j = math.complex(0, 1);
         let sensorPos = Array(NumberOfSensors);
         let an = Array(NumberOfSensors);
         let N = this.track.length;
         let isLapValid = false;
 
-        let response = "###OK###\n";
+        let output = [{log: logType.OK}];
         for(let n = 0; n < NumberOfSensors; n++) {
             sensorPos[n] = math.complex(rlength, (n - (NumberOfSensors-1.0)/2.0)*SensorSpacing);
         }
@@ -75,36 +80,31 @@ class RobotCompiler{
                 an[m] = this.getSensorOutput(sn);
             } 
             // Process
+            // TODO: Control algorithm
+            //
             av = math.add(math.multiply(av,0.92), math.multiply(speed,0.08));
             vv = math.multiply(bearing, WheelRadius*(av.re + av.im)/2.0);            
             bearing = math.multiply(bearing, math.Complex.fromPolar(1, WheelRadius*(av.re-av.im)/width));
             cFront = math.add(xy, math.multiply(bearing, rlength));
-            // TODO Lap-valid checking
-            //
-            //
-            //
+            // Check for laps
+            while(math.subtract(cFront, this.toComplex(this.track[(iTrack+ISTART)%N])).abs() < 150.0){
+                iTrack++;
+                if(iTrack > N){
+                    iTrack = 0;
+                    isLapValid = true;
+                }
+            }
+            if(cFront.re < XSTART+rlength && math.add(cFront, vv).re >= XSTART+rlength && cFront.im > YSTART-50 && isLapValid){
+                output.push({log: logType.LAP, time: n});
+                isLapValid = false;
+            }
+
             xy = math.add(xy, vv);
             L = math.multiply(L, math.Complex.fromPolar(1, -av.re)); // wheel speed is av rad/frame = 50av rad/s
-            R = math.multiply(R, math.Complex.fromPolar(1, -av.im));
-            response = response + this.toHex(); // TODO....
+            R = math.multiply(R, math.Complex.fromPolar(1, -av.im));            
+            output.push({log: logType.POSE, xy: xy.clone(), bearing: bearing.clone(), L: L.clone(), R: R.clone(), an: [...an]});
         }
-        
-        let dataJ = response.split('\n');
-        let dataString = "";
-        let errString = "";
-        let infString = "";
-        if(dataJ[0] == "###OK###"){
-            dataJ.forEach(x => {
-                if(x != "###OK###")
-                    dataString += x; //decodeHex(x, cpp.bot.NumberOfSensors);
-            });
-        } else {
-            errString = response;
-        }
-
-        console.log("NEW exe running");
-        callback({Errors: null, Result: "", Stats: ""});
-        
+        callback({Errors: null, Result: output, Stats: ""});        
     }
 
     exe_oldcpp(fn, callback){
@@ -193,4 +193,4 @@ function senseDec(s, nSensors){
     return z;
 }
 
-export {RobotCompiler};
+export {RobotCompiler, logType};
