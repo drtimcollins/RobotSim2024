@@ -8,18 +8,59 @@ P = 200 + 300*j;
 c = zeros(1,300);
 for n = 1:300
 %n = 100;
-A = t1(n)
+A = t1(n);
 B = t1(n+1);
 
 cf = ((real(B)-real(A)) * (real(P)-real(A)) + (imag(B)-imag(A)) * (imag(P)-imag(A))) / (abs(B-A)^2);
 c(n) = cf;
 end
 
+t1 = [1+0.1*j, 2.2+0.9*j, 3+3*j, 1+2.5*j, 1+0.1*j];
+P = 2.5+0.7*j;
 
+
+[x,y] = meshgrid(linspace(0,4),linspace(0,4));
+i = zeros(size(x));
+
+[~,n] = min(abs(t1 - P));
+%n =1
+A = t1(n);
+B = t1(n+1);
+cf = ((real(B)-real(A)) * (real(P)-real(A)) + (imag(B)-imag(A)) * (imag(P)-imag(A))) / (abs(B-A)^2);
+
+for m = 1:numel(i)
+    P = x(m)+j*y(m);
+    [~,n] = min(abs(t1(1:(length(t1)-1)) - P));
+    A = t1(n);
+
+    n1 = n - 1;
+    if(n1 < 1)
+        n1 = length(t1)-1;
+    end
+    B = t1(n1);
+    cf = ((real(B)-real(A)) * (real(P)-real(A)) + (imag(B)-imag(A)) * (imag(P)-imag(A))) / (abs(B-A)^2);
+    d1 = abs(P - A - (B-A)*cf);
+
+    n1 = n + 1;
+    B = t1(n1);
+    cf = ((real(B)-real(A)) * (real(P)-real(A)) + (imag(B)-imag(A)) * (imag(P)-imag(A))) / (abs(B-A)^2);
+    d2 = abs(P - A - (B-A)*cf);
+
+    
+
+%    i(m) = min(d1,d2);
+
+%    i(m) = abs(P - t1(n));
+end
 
 
 figure(1);
-plot(t);hold on;plot(t1,'r');plot(p,'x');
+imagesc(linspace(0,4),linspace(0,4),i);
+hold on;
+%plot(t);
+plot(t1,'r');
+%hold on;
+plot(P,'x');
 plot([A A+(B-A)*cf],'g');
 hold off;axis equal
 

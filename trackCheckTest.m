@@ -3,32 +3,46 @@ t = reshape(t(6:end),2,600)' * [1;j];
 t1 = mean(reshape(t,2,300));
 t1 = [t1 t1(1)];
 
-P = 200 + 300*j;
+[x,y] = meshgrid(0:1299, 0:699);
+i = zeros(size(x));
 
-c = zeros(1,300);
-for n = 1:300
-%n = 100;
-A = t1(n)
-B = t1(n+1);
+for m = 1:numel(i)
+    P = x(m)+j*y(m);
+    [~,n] = min(abs(t1(1:(length(t1)-1)) - P));
+    A = t1(n);
 
-cf = ((real(B)-real(A)) * (real(P)-real(A)) + (imag(B)-imag(A)) * (imag(P)-imag(A))) / (abs(B-A)^2);
-c(n) = cf;
+    n1 = n - 1;
+    if(n1 < 1)
+        n1 = length(t1)-1;
+    end
+    B = t1(n1);
+    cf1 = ((real(B)-real(A)) * (real(P)-real(A)) + (imag(B)-imag(A)) * (imag(P)-imag(A))) / (abs(B-A)^2);
+    d1 = abs(P - A - (B-A)*cf1);
+
+    n1 = n + 1;
+    B = t1(n1);
+    cf2 = ((real(B)-real(A)) * (real(P)-real(A)) + (imag(B)-imag(A)) * (imag(P)-imag(A))) / (abs(B-A)^2);
+    d2 = abs(P - A - (B-A)*cf2);
+
+    if(cf1 >= 0 && cf1 <= 1 && cf2 >= 0 && cf2 <= 1)
+        i(m) = min(d1,d2);
+    elseif(cf1 >= 0 && cf1 <= 1)
+        i(m) = d1;
+    elseif(cf2 >= 0 && cf2 <= 1)
+        i(m) = d2;
+    else
+        i(m) = abs(P - t1(n));
+    end
+
 end
 
-t1 = [1, 2+j, 3+3*j, 1];
-P = 2.3+0.8*j;
-
-[~,n] = min(abs(t1 - P))
-%n =1
-A = t1(n)
-B = t1(n+1);
-cf = ((real(B)-real(A)) * (real(P)-real(A)) + (imag(B)-imag(A)) * (imag(P)-imag(A))) / (abs(B-A)^2);
+i(i<=10)=0;
+i(i>100)=100;
 
 figure(1);
-%plot(t);
-plot(t1,'r');
-hold on;plot(P,'x');
-plot([A A+(B-A)*cf],'g');
-hold off;axis equal
 
-figure(2); plot(c)
+imagesc(0:1299, 0:699,i);
+hold on;
+plot(t,'g');
+plot(t1,'r');
+hold off;axis equal
