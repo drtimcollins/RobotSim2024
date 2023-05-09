@@ -1,34 +1,33 @@
 //import { MAXSENSORS } from './RobotSimulator.js';
+import { CircleTree } from './CircleTree.js';
+
 const logType = {OK:1, POSE:2, LAP:3};
 class RobotCompiler{
 	constructor(){
         this.isInit = false;
     }    
 	init(par){
-		// Find track Bounds
-        let minmax = [par.bbox.min.x, par.bbox.min.y, par.bbox.max.x, par.bbox.max.y];
+        this.track = [];
+        for(let n = 0; n < par.track.length; n += 2){
+
+            this.track.push(this.toComplex(par.track[n].clone().lerp(par.track[n+1],0.5)));
+        }
+        this.ct = new CircleTree(this.track);
+
         let startIndex = 0;
-        let bestD2 = par.track[0].distanceToSquared(par.start);
-		par.track.forEach(p => {
-            let d2 = p.distanceToSquared(par.start);
+        let startPoint = this.toComplex(par.start);
+        let bestD2 = math.subtract(this.track[0], startPoint).abs();
+		this.track.forEach(p => {
+            let d2 = math.subtract(p, startPoint).abs();
             if(d2 < bestD2){
-                startIndex = par.track.indexOf(p);
+                startIndex = this.track.indexOf(p);
                 bestD2 = d2;
             }
 		});
-		this.track = par.track;
-		this.trackBounds = [new THREE.Vector2(minmax[0],minmax[1]), new THREE.Vector2(minmax[2],minmax[3])];
-		console.log(this.trackBounds);
+
 		this.bot = par.robot;	
         this.start = par.start;
         this.startIndex = startIndex;
-
-        // Input format:
-        // minmax0 mm1 mm2 mm3 NtrackPoints trackpoint_n_x trackpoint_n_y etc
-        this.inString = minmax[0].toFixed(1) + " " + minmax[1].toFixed(1) + " " + minmax[2].toFixed(1) + " " + minmax[3].toFixed(1) + " " + par.track.length.toString();
-        par.track.forEach(p =>{
-            this.inString = this.inString + " " + p.x.toFixed(1) + " " + p.y.toFixed(1);
-        })
 		this.isInit = true;
     }
     
@@ -36,7 +35,9 @@ class RobotCompiler{
         this.bot = params;      
     }
     getSensorOutput(z){
-        return 0;
+        let p = this.ct.nearestPoint(z);
+
+        return p.distance < 10 ? 10000 : 0;
     }
 
     toComplex(p){ // Convert THREE.Vector2 to math.complex
@@ -58,7 +59,7 @@ class RobotCompiler{
         let bearing = math.complex(1.0, 0);
         let R = math.complex(1.0, 0);
         let L = math.complex(1.0, 0);
-        let speed = math.complex(0.05, 0.1); // TESTING (should be 0,0)
+        let speed = math.complex(0, 0);
         let av = math.complex(0, 0);
         let xy = math.complex(XSTART, YSTART);
         let vv, cFront;
@@ -81,13 +82,18 @@ class RobotCompiler{
             } 
             // Process
             // TODO: Control algorithm
+            if(an[0] > 10){
+                speed = math.complex(0.1,0);
+            } else{
+                speed = math.complex(0,0.1);
+            }
             //
             av = math.add(math.multiply(av,0.92), math.multiply(speed,0.08));
             vv = math.multiply(bearing, WheelRadius*(av.re + av.im)/2.0);            
             bearing = math.multiply(bearing, math.Complex.fromPolar(1, WheelRadius*(av.re-av.im)/width));
             cFront = math.add(xy, math.multiply(bearing, rlength));
             // Check for laps
-            while(math.subtract(cFront, this.toComplex(this.track[(iTrack+ISTART)%N])).abs() < 150.0){
+            while(math.subtract(cFront, this.track[(iTrack+ISTART)%N]).abs() < 150.0){
                 iTrack++;
                 if(iTrack > N){
                     iTrack = 0;
@@ -161,7 +167,7 @@ function tempDownloadCode(code, fname){
     document.body.removeChild(element);
 }
 
-function decodeHex(x, nSensors){
+/*function decodeHex(x, nSensors){
     let z = "";
     let xx = x.split(/\r?\n/);
     xx.forEach(xn=>{
@@ -192,5 +198,5 @@ function senseDec(s, nSensors){
     for(let n = 1; n < nSensors; n++) z += " " + x.substring(nSensors-n-1,nSensors-n)
     return z;
 }
-
+*/
 export {RobotCompiler, logType};

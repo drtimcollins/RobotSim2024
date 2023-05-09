@@ -150,10 +150,3 @@ input[type="file"] {
 	box-sizing: border-box; 
 	margin-left: 10px;
 }
-
-.ack{
-	float:right;
-	text-align: right;
-	
-	font-size: 12px;
-}
