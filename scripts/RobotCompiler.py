@@ -1,16 +1,18 @@
 import browser
 
 print("Running python code...")
-def runCode(cpp, fn):
-    print("Testing Python")
-    print(len(cpp.track))
-    print(cpp.track[0].x)
-    print(cpp.track[0].y)
-
-    track = []
-    for v in cpp.track:
-        track.append(v.x+1j*v.y)
-    print(track[0])
+def runCode(fn):
+    print("Compiling Python:")    
     print(fn)
+    try:
+        vals = {}
+        exec(fn, vals)
+        browser.window.myVals = vals
+    except  Exception as inst:
+        print(f"Error: {inst}")
+        print("Error")
+        print(type(inst))
+        print(inst.args) 
+        print(inst)   
 
 browser.window.runPyCode = runCode

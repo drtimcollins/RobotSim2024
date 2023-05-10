@@ -35,7 +35,7 @@ var lod = 0;    // Full detail - higher values reduce detail.
 $(function(){  
     editor = ace.edit("editor");
     editor.setTheme("ace/theme/eclipse");
-    editor.session.setMode("ace/mode/c_cpp");
+    editor.session.setMode("ace/mode/python");
     editor.setShowPrintMargin(false);	
    
     renderer = new THREE.WebGLRenderer({antialias: true});

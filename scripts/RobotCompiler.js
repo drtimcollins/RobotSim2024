@@ -9,7 +9,6 @@ class RobotCompiler{
 	init(par){
         this.track = [];
         for(let n = 0; n < par.track.length; n += 2){
-
             this.track.push(this.toComplex(par.track[n].clone().lerp(par.track[n+1],0.5)));
         }
         this.ct = new CircleTree(this.track);
@@ -34,10 +33,27 @@ class RobotCompiler{
     updateParams(params){
         this.bot = params;      
     }
-    getSensorOutput(z){
-        let p = this.ct.nearestPoint(z);
+    getSensorOutput(P){
+        let p = this.ct.nearestPoint(P);
 
-        return p.distance < 10 ? 10000 : 0;
+        let A = this.track[p.index];
+        let B = this.track[(p.index + this.track.length - 1) % this.track.length];
+        let cf1 = ((B.re-A.re) * (P.re-A.re) + (B.im-A.im) * (P.im-A.im)) / math.square(math.subtract(B,A).abs());
+        let d1 = (P.clone().sub(A).sub(B.sub(A).mul(cf1))).abs();
+        B = this.track[(p.index + 1) % this.track.length];
+        let cf2 = ((B.re-A.re) * (P.re-A.re) + (B.im-A.im) * (P.im-A.im)) / math.square(math.subtract(B,A).abs());
+        let d2 = (P.clone().sub(A).sub(B.sub(A).mul(cf2))).abs();
+        let d = 0;
+        if(cf1 >= 0 && cf1 <= 1 && cf2 >= 0 && cf2 <= 1)
+            d = Math.min(d1, d2);
+        else if(cf1 >= 0 && cf1 <= 1)
+            d = d1;
+        else if(cf2 >= 0 && cf2 <= 1)
+            d = d2;
+        else
+            d = P.sub(A).abs();
+        
+        return d < 10 ? 10000 : 0;
     }
 
     toComplex(p){ // Convert THREE.Vector2 to math.complex
@@ -45,6 +61,8 @@ class RobotCompiler{
     }
 
     exe(fn, callback){
+        console.log("Calling Python Compiler");
+        
         console.log("NEW exe running");
         let width = this.bot.width;
         let rlength = this.bot.length;
@@ -69,6 +87,8 @@ class RobotCompiler{
         let N = this.track.length;
         let isLapValid = false;
 
+        runPyCode(fn);
+
         let output = [{log: logType.OK}];
         for(let n = 0; n < NumberOfSensors; n++) {
             sensorPos[n] = math.complex(rlength, (n - (NumberOfSensors-1.0)/2.0)*SensorSpacing);
@@ -78,15 +98,19 @@ class RobotCompiler{
             // Update sensors
             for(let m = 0; m < NumberOfSensors; m++) {
                 let sn = math.add(math.multiply(sensorPos[m], bearing) , xy); 
-                an[m] = this.getSensorOutput(sn);
+                myVals.robot.an[m] = an[m] = this.getSensorOutput(sn);
             } 
             // Process
-            // TODO: Control algorithm
-            if(an[0] > 10){
+            // Control algorithm
+
+            myVals['RobotControl']();
+            speed = math.complex(myVals.robot.speed[0].value, myVals.robot.speed[1].value);
+
+            /*if(an[0] > 10){
                 speed = math.complex(0.1,0);
-            } else{
+            } else {
                 speed = math.complex(0,0.1);
-            }
+            }*/
             //
             av = math.add(math.multiply(av,0.92), math.multiply(speed,0.08));
             vv = math.multiply(bearing, WheelRadius*(av.re + av.im)/2.0);            
