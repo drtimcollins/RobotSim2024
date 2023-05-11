@@ -1,7 +1,7 @@
 //import { MAXSENSORS } from './RobotSimulator.js';
 import { CircleTree } from './CircleTree.js';
 
-const logType = {OK:1, POSE:2, LAP:3};
+const logType = {OK:1, POSE:2, LAP:3, PRINT:4};
 class RobotCompiler{
 	constructor(){
         this.isInit = false;
@@ -89,12 +89,15 @@ class RobotCompiler{
 
         let cpc = runPyCode(fn);
         if(cpc == 0){
-
             let output = [{log: logType.OK}];
+            if(simPrintBuffer.length > 0){
+                output.push({log: logType.PRINT, str: simPrintBuffer, time: 0});
+                simPrintBuffer = "";
+            }
             for(let n = 0; n < NumberOfSensors; n++) {
                 sensorPos[n] = math.complex(rlength, (n - (NumberOfSensors-1.0)/2.0)*SensorSpacing);
             }
-            let iTrack = 0;
+            let iTrack = 0;            
             for(let n = 0; n < 3000; n++){
                 // Update sensors
                 for(let m = 0; m < NumberOfSensors; m++) {
@@ -103,7 +106,7 @@ class RobotCompiler{
                 } 
                 // Process
 
-                // Control algorithm
+                // Control algorithm                
                 try{                    
                     myVals[timercallback.$infos.__name__]();
                 }
@@ -111,6 +114,10 @@ class RobotCompiler{
                     console.log("Runtime error: " + e.args[0]);
                     callback({Errors: "Line "+e.$linenos[0]+": "+e.args[0], Result: null, Stats: ""}); 
                     return; 
+                }
+                if(simPrintBuffer.length > 0){
+                    output.push({log: logType.PRINT, str: simPrintBuffer, time: n});
+                    simPrintBuffer = "";
                 }
                 speed = math.complex(myVals.robot.speed[0].value, myVals.robot.speed[1].value);
 

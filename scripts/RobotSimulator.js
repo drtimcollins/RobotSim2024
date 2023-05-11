@@ -24,8 +24,8 @@ var robotParams = {
     NumberOfSensors: 1,
     SensorSpacing: 15,
     WheelRadius: 20};
-var robot, rec, laps, editor;
-var lastTime, bestTime, isRaceOver;
+var robot, rec, laps, prints, editor;
+var lastTime, nextPrint, bestTime, isRaceOver;
 var splitTime, splitFrameCount;
 var scenes, cpps;
 var stats;
@@ -170,6 +170,12 @@ function update() {
             if(frameCount - lapStart < lastTime)
                 $('#coutBox').text($('#coutBox').text() + '\n' + 'Lap Time: ' + getTimeString(lapTime * 20.0));
             lastTime = frameCount - lapStart;
+            if(nextPrint < prints.length){
+                if(frameCount >= prints[nextPrint].time){
+                    $('#coutBox').text($('#coutBox').text() + '\n' + prints[nextPrint].str);
+                    nextPrint++;
+                }
+            }
         } else {
             gui.timers[0].setTime(0);
             if(!isRaceOver){
@@ -317,6 +323,7 @@ function runCode(trackIndex){
 
                     rec = [];
                     laps = [];
+                    prints = [];
                     data.Result.forEach(rItem => {
                         switch(rItem.log){
                             case logType.OK:
@@ -328,10 +335,14 @@ function runCode(trackIndex){
                             case logType.POSE:
                                 rec.push({pose: $.extend(true,{},rItem)});
                                 break;
+                            case logType.PRINT:
+                                prints.push(rItem);
+                                break;
                         }
 
                     });
                     lastTime = -100;
+                    nextPrint = 0;
                     bestTime = 100000;
                     isRaceOver = false;
                     splitTime = 0;

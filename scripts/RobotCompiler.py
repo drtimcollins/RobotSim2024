@@ -3,15 +3,21 @@ import traceback
 (OK,ERROR) = (0,1)
 
 browser.window.console.log("Running python code...")
+setupCode = """
+import browser
+def print(x):
+    xx = str(x) + '\\n'
+    browser.window.simPrintBuffer = browser.window.simPrintBuffer + xx
+"""
 def runCode(fn):
     browser.window.console.log("Compiling Python:")    
+    browser.window.simPrintBuffer = ""
     browser.window.console.log(fn)
     try:
         vals = {}
-        exec("from browser import window\ndef print(x):\n\twindow.simPrintBuffer = x\n", vals)
+        exec(setupCode, vals)
         exec(fn, vals)
         browser.window.myVals = vals
-        print("PRINT TEST")
         return OK
     except  Exception as inst:
         browser.window.console.log(f"Error: {inst}")
