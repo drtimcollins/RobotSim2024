@@ -103,7 +103,8 @@ class RobotCompiler{
             // Process
             // Control algorithm
 
-            myVals['RobotControl']();
+            //myVals['RobotControl']();
+            myVals[timercallback.$infos.__name__]();
             speed = math.complex(myVals.robot.speed[0].value, myVals.robot.speed[1].value);
 
             /*if(an[0] > 10){

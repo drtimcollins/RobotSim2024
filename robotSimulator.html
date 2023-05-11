@@ -21,13 +21,13 @@
     <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/brython@3.11.0/brython.min.js"></script>
     <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/brython@3.11.0/brython_stdlib.js"></script>
 	<script type="module" src="scripts/RobotSimulator.js"></script>
-	<script type="text/python" id="time">
+	<script type="text/python" id="machine">
 import browser
-TestVariable = 10
-def print(y):
-	browser.console.log(f"printing: {y}")
-def sleep(x):
-	print(x * TestVariable)
+browser.window.timercallback = None
+class Timer:
+	(ONE_SHOT, PERIODIC) = (0, 1)
+	def init(self,*, mode=PERIODIC, freq=- 1, period=- 1, callback=None):
+		browser.window.timercallback = callback		
 	</script>
 	<script type="text/python" id="robot">
 import browser
@@ -128,7 +128,9 @@ def adcread(i):
     </div>	
 		<div class="six columns">
 			<pre id="editor">
-import robot
+import robot, machine
+
+t = machine.Timer()
 
 def RobotControl():
 	a = robot.adcread(0)
@@ -138,6 +140,8 @@ def RobotControl():
 	else:
 		robot.motor(0, 0)		# Motor 0 stop
 		robot.motor(1, 2000)	# Motor 1 go
+
+t.init(callback = RobotControl)
 			</pre>
 			<center>
 				<button class="runButton" type="button" onclick="runCode(0);">Run (Track 1)</button>
