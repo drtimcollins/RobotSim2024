@@ -331,22 +331,6 @@ function runCode(trackIndex){
                         }
 
                     });
-
-/*                    recItems.forEach(rItem => {
-                        let recDat = rItem.split(' ');
-                        if(recDat.length == 2){
-                            laps.push(parseInt(recDat[1]));
-                        } else if(recDat.length == 8+cpp.bot.NumberOfSensors){
-                            let pose = {xy: math.Complex(parseFloat(recDat[0]),parseFloat(recDat[1])), 
-                                bearing: math.Complex(parseFloat(recDat[2]),parseFloat(recDat[3])),
-                                L: math.Complex(parseFloat(recDat[4]),parseFloat(recDat[5])),
-                                R: math.Complex(parseFloat(recDat[6]),parseFloat(recDat[7])), 
-                                an: new Array(cpp.bot.NumberOfSensors)};                
-                            for(var n = 0; n < cpp.bot.NumberOfSensors; n++)
-                                pose.an[n] = (recDat[8+n] == "0") ? 0 : 0xFFFFFF;
-                            rec.push({pose: $.extend(true,{},pose)});
-                        }                    });*/
-
                     lastTime = -100;
                     bestTime = 100000;
                     isRaceOver = false;
@@ -365,25 +349,9 @@ function runCode(trackIndex){
                     onResize();
                 } else { // Report Errors
                     var errs = data.Errors;
-                    /*var regex = /main\.cpp:(\d+):/g
-                    var match;
-                    while ((match = regex.exec(errs)) != null) {
-                        let ln = parseInt(match[1]) - 143;
-                        errs = errs.substring(0,match.index+9)+ln.toString()+errs.substring(match.index+9+match[1].length);
-                        regex.lastIndex += match[1].length - ln.toString().length;
-                    }
-                    var regex2 = /  (\d\d\d) \|/g
-                    while ((match = regex2.exec(errs)) != null) {
-                        let ln = parseInt(match[1]) - 143;
-                        errs = errs.substring(0,match.index)+" ".repeat(5-ln.toString().length)+ln.toString()+errs.substring(match.index+5);
-                        regex2.lastIndex += match[1].length - ln.toString().length;
-                    }
-
-                    $('#coutBox').text('Program Build Failed\n'+errs.replace("RobotControlCode::",""));*/
                     $('#coutBox').text('Program Build Failed\n'+errs);
                     onIconClicked("Icon6");
                 }
-                //$('#progress').hide();
                 showProgress(false);
             });}, 100);
         }

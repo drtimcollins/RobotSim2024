@@ -104,7 +104,7 @@ class RobotCompiler{
                 // Process
 
                 // Control algorithm
-                try{
+                try{                    
                     myVals[timercallback.$infos.__name__]();
                 }
                 catch(e){

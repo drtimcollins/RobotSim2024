@@ -7,5 +7,5 @@ def motor(i, x):
 	sp = int(x) & 0x1FFF;
 	speed[i] = sp / 16000.0;
 
-def adcread(i):
+def readsensor(i):
 	return an[i]

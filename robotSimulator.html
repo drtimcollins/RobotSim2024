@@ -117,7 +117,7 @@ import robot, machine
 t = machine.Timer()
 
 def RobotControl():
-	a = robot.adcread(0)
+	a = robot.readsensor(0)
 	if(a > 10):
 		robot.motor(0, 2000)	# Motor 0 go
 		robot.motor(1, 0)	    # Motor 1 stop
