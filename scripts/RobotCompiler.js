@@ -102,9 +102,16 @@ class RobotCompiler{
                     myVals.robot.an[m] = an[m] = this.getSensorOutput(sn);
                 } 
                 // Process
-                // Control algorithm
 
-                myVals[timercallback.$infos.__name__]();
+                // Control algorithm
+                try{
+                    myVals[timercallback.$infos.__name__]();
+                }
+                catch(e){
+                    console.log("Runtime error: " + e.args[0]);
+                    callback({Errors: "Line "+e.$linenos[0]+": "+e.args[0], Result: null, Stats: ""}); 
+                    return; 
+                }
                 speed = math.complex(myVals.robot.speed[0].value, myVals.robot.speed[1].value);
 
                 av = math.add(math.multiply(av,0.92), math.multiply(speed,0.08));

@@ -1,4 +1,5 @@
 import browser
+import traceback
 (OK,ERROR) = (0,1)
 
 print("Running python code...")
@@ -15,8 +16,10 @@ def runCode(fn):
         print("Error")
         print(type(inst))
         print(inst.args) 
-        print(inst) 
-        browser.window.pyCodeError = inst #f"{inst}"
+        print(inst.__str__()) 
+        print(dir(inst)) 
+        print(traceback.format_exc())
+        browser.window.pyCodeError = traceback.format_exc() #inst #f"{inst}"
         return ERROR
 
 browser.window.runPyCode = runCode

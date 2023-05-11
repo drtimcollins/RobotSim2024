@@ -381,6 +381,7 @@ function runCode(trackIndex){
 
                     $('#coutBox').text('Program Build Failed\n'+errs.replace("RobotControlCode::",""));*/
                     $('#coutBox').text('Program Build Failed\n'+errs);
+                    onIconClicked("Icon6");
                 }
                 //$('#progress').hide();
                 showProgress(false);
