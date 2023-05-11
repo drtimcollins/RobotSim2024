@@ -6,6 +6,7 @@ Online JS version of line-following robot sim. Microcontroller code is compiled 
 
 
 ## To-do
+- Finish analogue sensor output coding
 - Convert to MicroPython
 	- Error handling needs implementing
 	- Non-errors but mistakes that cause malfunction need flagging

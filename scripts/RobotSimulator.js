@@ -365,7 +365,7 @@ function runCode(trackIndex){
                     onResize();
                 } else { // Report Errors
                     var errs = data.Errors;
-                    var regex = /main\.cpp:(\d+):/g
+                    /*var regex = /main\.cpp:(\d+):/g
                     var match;
                     while ((match = regex.exec(errs)) != null) {
                         let ln = parseInt(match[1]) - 143;
@@ -379,7 +379,8 @@ function runCode(trackIndex){
                         regex2.lastIndex += match[1].length - ln.toString().length;
                     }
 
-                    $('#coutBox').text('Program Build Failed\n'+errs.replace("RobotControlCode::",""));
+                    $('#coutBox').text('Program Build Failed\n'+errs.replace("RobotControlCode::",""));*/
+                    $('#coutBox').text('Program Build Failed\n'+errs);
                 }
                 //$('#progress').hide();
                 showProgress(false);

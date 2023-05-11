@@ -87,55 +87,52 @@ class RobotCompiler{
         let N = this.track.length;
         let isLapValid = false;
 
-        runPyCode(fn);
+        let cpc = runPyCode(fn);
+        if(cpc == 0){
 
-        let output = [{log: logType.OK}];
-        for(let n = 0; n < NumberOfSensors; n++) {
-            sensorPos[n] = math.complex(rlength, (n - (NumberOfSensors-1.0)/2.0)*SensorSpacing);
-        }
-        let iTrack = 0;
-        for(let n = 0; n < 3000; n++){
-            // Update sensors
-            for(let m = 0; m < NumberOfSensors; m++) {
-                let sn = math.add(math.multiply(sensorPos[m], bearing) , xy); 
-                myVals.robot.an[m] = an[m] = this.getSensorOutput(sn);
-            } 
-            // Process
-            // Control algorithm
+            let output = [{log: logType.OK}];
+            for(let n = 0; n < NumberOfSensors; n++) {
+                sensorPos[n] = math.complex(rlength, (n - (NumberOfSensors-1.0)/2.0)*SensorSpacing);
+            }
+            let iTrack = 0;
+            for(let n = 0; n < 3000; n++){
+                // Update sensors
+                for(let m = 0; m < NumberOfSensors; m++) {
+                    let sn = math.add(math.multiply(sensorPos[m], bearing) , xy); 
+                    myVals.robot.an[m] = an[m] = this.getSensorOutput(sn);
+                } 
+                // Process
+                // Control algorithm
 
-            //myVals['RobotControl']();
-            myVals[timercallback.$infos.__name__]();
-            speed = math.complex(myVals.robot.speed[0].value, myVals.robot.speed[1].value);
+                myVals[timercallback.$infos.__name__]();
+                speed = math.complex(myVals.robot.speed[0].value, myVals.robot.speed[1].value);
 
-            /*if(an[0] > 10){
-                speed = math.complex(0.1,0);
-            } else {
-                speed = math.complex(0,0.1);
-            }*/
-            //
-            av = math.add(math.multiply(av,0.92), math.multiply(speed,0.08));
-            vv = math.multiply(bearing, WheelRadius*(av.re + av.im)/2.0);            
-            bearing = math.multiply(bearing, math.Complex.fromPolar(1, WheelRadius*(av.re-av.im)/width));
-            cFront = math.add(xy, math.multiply(bearing, rlength));
-            // Check for laps
-            while(math.subtract(cFront, this.track[(iTrack+ISTART)%N]).abs() < 150.0){
-                iTrack++;
-                if(iTrack > N){
-                    iTrack = 0;
-                    isLapValid = true;
+                av = math.add(math.multiply(av,0.92), math.multiply(speed,0.08));
+                vv = math.multiply(bearing, WheelRadius*(av.re + av.im)/2.0);            
+                bearing = math.multiply(bearing, math.Complex.fromPolar(1, WheelRadius*(av.re-av.im)/width));
+                cFront = math.add(xy, math.multiply(bearing, rlength));
+                // Check for laps
+                while(math.subtract(cFront, this.track[(iTrack+ISTART)%N]).abs() < 150.0){
+                    iTrack++;
+                    if(iTrack > N){
+                        iTrack = 0;
+                        isLapValid = true;
+                    }
                 }
-            }
-            if(cFront.re < XSTART+rlength && math.add(cFront, vv).re >= XSTART+rlength && cFront.im > YSTART-50 && isLapValid){
-                output.push({log: logType.LAP, time: n});
-                isLapValid = false;
-            }
+                if(cFront.re < XSTART+rlength && math.add(cFront, vv).re >= XSTART+rlength && cFront.im > YSTART-50 && isLapValid){
+                    output.push({log: logType.LAP, time: n});
+                    isLapValid = false;
+                }
 
-            xy = math.add(xy, vv);
-            L = math.multiply(L, math.Complex.fromPolar(1, -av.re)); // wheel speed is av rad/frame = 50av rad/s
-            R = math.multiply(R, math.Complex.fromPolar(1, -av.im));            
-            output.push({log: logType.POSE, xy: xy.clone(), bearing: bearing.clone(), L: L.clone(), R: R.clone(), an: [...an]});
+                xy = math.add(xy, vv);
+                L = math.multiply(L, math.Complex.fromPolar(1, -av.re)); // wheel speed is av rad/frame = 50av rad/s
+                R = math.multiply(R, math.Complex.fromPolar(1, -av.im));            
+                output.push({log: logType.POSE, xy: xy.clone(), bearing: bearing.clone(), L: L.clone(), R: R.clone(), an: [...an]});
+            }        
+            callback({Errors: null, Result: output, Stats: ""});        
+        } else {
+            callback({Errors: pyCodeError, Result: null, Stats: ""});        
         }
-        callback({Errors: null, Result: output, Stats: ""});        
     }
 
     exe_oldcpp(fn, callback){
