@@ -72,7 +72,6 @@ class RobotCompiler{
         let XSTART = this.start.x - rlength;
         let YSTART = this.start.y;
         let ISTART = this.startIndex;
-        let black_threshold = 100;
 
         let bearing = math.complex(1.0, 0);
         let R = math.complex(1.0, 0);
@@ -97,7 +96,10 @@ class RobotCompiler{
             for(let n = 0; n < NumberOfSensors; n++) {
                 sensorPos[n] = math.complex(rlength, (n - (NumberOfSensors-1.0)/2.0)*SensorSpacing);
             }
-            let iTrack = 0;            
+            let iTrack = 0;  
+
+            let fCoeff = Math.exp(-1/50/0.24);  // NEEDS SAMPLE RATE         
+
             for(let n = 0; n < 3000; n++){
                 // Update sensors
                 for(let m = 0; m < NumberOfSensors; m++) {
@@ -121,7 +123,8 @@ class RobotCompiler{
                 }
                 speed = math.complex(myVals.robot.speed[0].value, myVals.robot.speed[1].value);
 
-                av = math.add(math.multiply(av,0.92), math.multiply(speed,0.08));
+//                av = math.add(math.multiply(av,0.92), math.multiply(speed,0.08));
+                av = math.add(math.multiply(av,fCoeff), math.multiply(speed,1-fCoeff));
                 vv = math.multiply(bearing, WheelRadius*(av.re + av.im)/2.0);            
                 bearing = math.multiply(bearing, math.Complex.fromPolar(1, WheelRadius*(av.re-av.im)/width));
                 cFront = math.add(xy, math.multiply(bearing, rlength));

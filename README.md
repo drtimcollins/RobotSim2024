@@ -9,7 +9,7 @@ Online JS version of line-following robot sim. Microcontroller code is compiled 
 - Convert to MicroPython
 	- Error handling needs refining
 	- Non-errors but mistakes that cause malfunction need flagging
-	- Add print messages to log window
+	- ~~Add print messages to log window~~
 	- Variable timer frequency
 - Add SCORM wrapper?
 - Add 'gear-ratio' option?

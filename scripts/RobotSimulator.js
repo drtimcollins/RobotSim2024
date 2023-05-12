@@ -37,7 +37,8 @@ $(function(){
     editor.setTheme("ace/theme/eclipse");
     editor.session.setMode("ace/mode/python");
     editor.setShowPrintMargin(false);	
-   
+    editor.session.setUseSoftTabs(false);
+
     renderer = new THREE.WebGLRenderer({antialias: true});
     renderer.shadowMap.enabled = true;
 //    renderer.shadowMap.type = THREE.PCFSoftShadowMap;
@@ -167,13 +168,18 @@ function update() {
             }}); 
             gui.timers[1].setTime(lapTime * 20.0);   
             gui.timers[0].setTime(Math.max((frameCount-lapStart) * 20.0, 0));   
-            if(frameCount - lapStart < lastTime)
-                $('#coutBox').text($('#coutBox').text() + '\n' + 'Lap Time: ' + getTimeString(lapTime * 20.0));
+            if(frameCount - lapStart < lastTime){
+                $('#coutBox').text($('#coutBox').text() + 'Lap Time: ' + getTimeString(lapTime * 20.0) + '\n');
+                var $textarea = $('#coutBox');
+                $textarea.scrollTop($textarea[0].scrollHeight);
+            }
             lastTime = frameCount - lapStart;
             if(nextPrint < prints.length){
                 if(frameCount >= prints[nextPrint].time){
-                    $('#coutBox').text($('#coutBox').text() + '\n' + prints[nextPrint].str);
+                    $('#coutBox').text($('#coutBox').text() + prints[nextPrint].str);
                     nextPrint++;
+                    var $textarea = $('#coutBox');
+                    $textarea.scrollTop($textarea[0].scrollHeight);
                 }
             }
         } else {
@@ -181,9 +187,11 @@ function update() {
             if(!isRaceOver){
                 isRaceOver = true;
                 if(bestTime < 100000)
-                    $('#coutBox').text($('#coutBox').text() + '\n' + 'Simulation over. Best lap: ' + getTimeString(bestTime * 20.0));
+                    $('#coutBox').text($('#coutBox').text() + 'Simulation over. Best lap: ' + getTimeString(bestTime * 20.0) + '\n');
                 else
-                    $('#coutBox').text($('#coutBox').text() + '\n' + 'Simulation over. No complete laps recorded.');
+                    $('#coutBox').text($('#coutBox').text() + 'Simulation over. No complete laps recorded.' + '\n');
+                var $textarea = $('#coutBox');
+                $textarea.scrollTop($textarea[0].scrollHeight);
             }
         }
     }
@@ -273,7 +281,7 @@ function batchRun(){
                     cpp = cpps[trNum];  // Loop this
                     cpp.updateParams({width: o.width, length: o.length, NumberOfSensors: o.NumberOfSensors, SensorSpacing: o.SensorSpacing, WheelRadius: o.WheelRadius});
                     console.log(o);
-                    if(trNum == 0) $('#coutBox').text($('#coutBox').text() + '\n' + o.ID);
+                    if(trNum == 0) $('#coutBox').text($('#coutBox').text() + o.ID);
                     cpp.exe(o.Code, function(data){
                         console.log("Ran");
                         if(data.Errors == null){
@@ -289,7 +297,7 @@ function batchRun(){
                             for(let n = laps.length-1; n > 0; n--)  laps[n] -= laps[n-1];                    
                             console.log(laps);
                             console.log(Math.min(...laps));
-                            $('#coutBox').text($('#coutBox').text() + ", " + Math.min(...laps) / 1000.0);
+                            $('#coutBox').text($('#coutBox').text() + ", " + Math.min(...laps) / 1000.0 + '\n');
                         }
                         isDone = true;
                         if(!(trNum == 2 && idNum == oArray.length-1)) setTimeout(batchProc, 0);
@@ -306,7 +314,7 @@ function runCode(trackIndex){
 //    if(robot.shape.radius > 125){
 //        $('#coutBox').text("Fail\nRobot is too big. Maximum diameter = 250mm, robot diameter = "+(robot.shape.radius*2.0).toFixed(1)+"mm\n"); 
     if(!robot.shape.sizeOK){
-        $('#coutBox').text("Fail\nRobot is too big. See the project specification for limits."); 
+        $('#coutBox').text("Fail\nRobot is too big. See the project specification for limits.\n"); 
     } else {
         //$('#progress').show();
         showProgress(true);
@@ -327,7 +335,9 @@ function runCode(trackIndex){
                     data.Result.forEach(rItem => {
                         switch(rItem.log){
                             case logType.OK:
-                                $('#coutBox').text($('#coutBox').text() + "\nCompilation OK\n");
+                                $('#coutBox').text($('#coutBox').text() + "Compilation OK\n");
+                                var $textarea = $('#coutBox');
+                                $textarea.scrollTop($textarea[0].scrollHeight);
                                 break;
                             case logType.LAP:
                                 laps.push(rItem.time);

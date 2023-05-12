@@ -112,9 +112,7 @@
     </div>	
 		<div class="six columns">
 			<pre id="editor">
-import robot, machine
-
-t = machine.Timer()
+import robot
 
 def RobotControl():
 	a = robot.readsensor(0)
@@ -125,7 +123,8 @@ def RobotControl():
 		robot.motor(0, 0)		# Motor 0 stop
 		robot.motor(1, 2000)	# Motor 1 go
 
-t.init(callback = RobotControl)
+tmr = robot.Timer()
+tmr.init(freq = 50, callback = RobotControl)
 			</pre>
 			<center>
 				<button class="runButton" type="button" onclick="runCode(0);">Run (Track 1)</button>
