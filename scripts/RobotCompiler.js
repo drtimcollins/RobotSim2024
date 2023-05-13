@@ -87,6 +87,8 @@ class RobotCompiler{
         let isLapValid = false;
 
         let cpc = runPyCode(fn);
+        console.log("Timer rate = " + timerfreq.toString());
+        
         if(cpc == 0){
             let output = [{log: logType.OK}];
             if(simPrintBuffer.length > 0){
@@ -121,6 +123,8 @@ class RobotCompiler{
                     output.push({log: logType.PRINT, str: simPrintBuffer, time: n});
                     simPrintBuffer = "";
                 }
+
+                //// SCALE THIS LINE TO CHANGE SAMPLE RATE (AND 101/103)
                 speed = math.complex(myVals.robot.speed[0].value, myVals.robot.speed[1].value);
 
 //                av = math.add(math.multiply(av,0.92), math.multiply(speed,0.08));

@@ -30,6 +30,7 @@ var splitTime, splitFrameCount;
 var scenes, cpps;
 var stats;
 var lod = 0;    // Full detail - higher values reduce detail.
+var frameRate = 50.0;
 
 // Start-up initialisation
 $(function(){  
@@ -145,7 +146,7 @@ function onTrackLoaded(){
 }
 
 function getFrameCount(){
-    return splitFrameCount + (clk.getElapsedTime() - splitTime) * (gui.isSloMo ? 5.0 : 50.0);
+    return splitFrameCount + (clk.getElapsedTime() - splitTime) * (gui.isSloMo ? (frameRate/10.0) : frameRate);
 }
 
 function update() {
@@ -158,7 +159,7 @@ function update() {
     let frameCount = getFrameCount();
 
     if(dmode == dispMode.RACE){
-        if(frameCount <= 3000.0){   // 60 seconds
+        if(frameCount <= 60*frameRate){   // 60 seconds
             let lapTime = 0;
             let lapStart = 0;
             laps.forEach(lapn=>{ if(frameCount > lapn){
@@ -166,10 +167,10 @@ function update() {
                 lapStart = lapn;
                 bestTime = Math.min(lapTime, bestTime);
             }}); 
-            gui.timers[1].setTime(lapTime * 20.0);   
-            gui.timers[0].setTime(Math.max((frameCount-lapStart) * 20.0, 0));   
+            gui.timers[1].setTime(lapTime * 1000.0 / frameRate);   
+            gui.timers[0].setTime(Math.max((frameCount-lapStart) * 1000.0 / frameRate, 0));   
             if(frameCount - lapStart < lastTime){
-                $('#coutBox').text($('#coutBox').text() + 'Lap Time: ' + getTimeString(lapTime * 20.0) + '\n');
+                $('#coutBox').text($('#coutBox').text() + 'Lap Time: ' + getTimeString(lapTime * 1000.0 / frameRate) + '\n');
                 var $textarea = $('#coutBox');
                 $textarea.scrollTop($textarea[0].scrollHeight);
             }
@@ -187,7 +188,7 @@ function update() {
             if(!isRaceOver){
                 isRaceOver = true;
                 if(bestTime < 100000)
-                    $('#coutBox').text($('#coutBox').text() + 'Simulation over. Best lap: ' + getTimeString(bestTime * 20.0) + '\n');
+                    $('#coutBox').text($('#coutBox').text() + 'Simulation over. Best lap: ' + getTimeString(bestTime * 1000.0 / frameRate) + '\n');
                 else
                     $('#coutBox').text($('#coutBox').text() + 'Simulation over. No complete laps recorded.' + '\n');
                 var $textarea = $('#coutBox');
