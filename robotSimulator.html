@@ -116,14 +116,11 @@ import robot
 def RobotControl():
 	a = robot.readsensor(0)
 	if(a > 10):
-		robot.motor(0, 2000)	# Motor 0 go
-		robot.motor(1, 0)	    # Motor 1 stop
+		robot.motors(2000, 0)	# Motor 0 go, Motor 1 stop
 	else:
-		robot.motor(0, 0)		# Motor 0 stop
-		robot.motor(1, 2000)	# Motor 1 go
+		robot.motors(0, 2000)	# Motor 0 stop, Motor 1 go
 
-tmr = robot.Timer()
-tmr.init(freq = 50, callback = RobotControl)
+robot.timer(freq = 50, callback = RobotControl)
 			</pre>
 			<center>
 				<button class="runButton" type="button" onclick="runCode(0);">Run (Track 1)</button>

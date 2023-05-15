@@ -4,15 +4,20 @@ speed = [0]*2
 an = [0]*10
 
 def motor(i, x):
-	sp = int(x) & 0x1FFF;
-	speed[i] = sp / 16000.0;
+	sp = int(x) & 0x1FFF
+	speed[i] = sp / 16000.0
+def motors(x, y):
+	motor(0, x)
+	motor(1, y)
 
 def readsensor(i):
 	return an[i]
+def readsensors(i):
+	return an[0:i]
 
 browser.window.timercallback = None
 browser.window.timerfreq = None
-class Timer:
-	def init(self,*, freq=- 1, callback=None):
-		browser.window.timercallback = callback
-		browser.window.timerfreq = freq		
+def timer(freq=- 1, callback=None):
+	browser.window.timercallback = callback
+	browser.window.timerfreq = freq
+	
