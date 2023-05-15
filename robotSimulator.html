@@ -115,7 +115,7 @@ import robot
 
 def RobotControl():
 	a = robot.readsensor(0)
-	if(a > 10):
+	if(a > 16500):
 		robot.motors(2000, 0)	# Motor 0 go, Motor 1 stop
 	else:
 		robot.motors(0, 2000)	# Motor 0 stop, Motor 1 go

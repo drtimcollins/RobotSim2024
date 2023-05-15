@@ -53,7 +53,8 @@ class RobotCompiler{
         else
             d = P.sub(A).abs();
         
-        return d < 10 ? 10000 : 0;
+        //return d < 10 ? 10000 : 0;
+        return Math.round(52760.0*Math.cos(1.5-Math.exp(0.4055-0.007*Math.pow(Math.abs(d),2.45))));
     }
 
     toComplex(p){ // Convert THREE.Vector2 to math.complex
@@ -86,12 +87,21 @@ class RobotCompiler{
         let N = this.track.length;
         let isLapValid = false;
 
+        timerfreq = null;
         let cpc = runPyCode(fn);
-        console.log("Timer rate = " + timerfreq.toString());
-        let timerMultiplier = Math.ceil(50.0 / timerfreq);
-        this.frameRate = timerfreq * timerMultiplier;
-        console.log("Frame rate = " + this.frameRate.toString() + ", Multiplier = " + timerMultiplier.toString()); 
+        if(cpc==0 && timerfreq == null){
+            callback({Errors: "Error: No timer is set-up (need a call to robot.timer)", Result: null, Stats: ""}); 
+            return;    
+        } else if(cpc==0 && timerfreq == -1){
+            callback({Errors: "Error: Timer frequency is not set.", Result: null, Stats: ""}); 
+            return; 
+        }
         if(cpc == 0){
+            console.log("Timer rate = " + timerfreq.toString());
+            let timerMultiplier = Math.ceil(50.0 / timerfreq);
+            this.frameRate = timerfreq * timerMultiplier;
+            console.log("Frame rate = " + this.frameRate.toString() + ", Multiplier = " + timerMultiplier.toString()); 
+
             let output = [{log: logType.OK}];
             if(simPrintBuffer.length > 0){
                 output.push({log: logType.PRINT, str: simPrintBuffer, time: 0});
