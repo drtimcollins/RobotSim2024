@@ -156,6 +156,7 @@ function update() {
     scene.gridHelper.visible = scene.turntableTop.visible = scene.turntable.visible = !(dmode == dispMode.RACE);
     scene.room.forEach(x => x.visible = (dmode == dispMode.RACE));
 
+    frameRate = cpp.frameRate;
     let frameCount = getFrameCount();
 
     if(dmode == dispMode.RACE){

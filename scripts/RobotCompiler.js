@@ -88,7 +88,9 @@ class RobotCompiler{
 
         let cpc = runPyCode(fn);
         console.log("Timer rate = " + timerfreq.toString());
-        
+        let timerMultiplier = Math.ceil(50.0 / timerfreq);
+        this.frameRate = timerfreq * timerMultiplier;
+        console.log("Frame rate = " + this.frameRate.toString() + ", Multiplier = " + timerMultiplier.toString()); 
         if(cpc == 0){
             let output = [{log: logType.OK}];
             if(simPrintBuffer.length > 0){
@@ -100,9 +102,9 @@ class RobotCompiler{
             }
             let iTrack = 0;  
 
-            let fCoeff = Math.exp(-1/50/0.24);  // NEEDS SAMPLE RATE         
+            let fCoeff = Math.exp(-1/this.frameRate/0.24);
 
-            for(let n = 0; n < 3000; n++){
+            for(let n = 0; n < this.frameRate * 60; n++){
                 // Update sensors
                 for(let m = 0; m < NumberOfSensors; m++) {
                     let sn = math.add(math.multiply(sensorPos[m], bearing) , xy); 
@@ -110,22 +112,24 @@ class RobotCompiler{
                 } 
                 // Process
 
-                // Control algorithm                
-                try{                    
-                    myVals[timercallback.$infos.__name__]();
-                }
-                catch(e){
-                    console.log("Runtime error: " + e.args[0]);
-                    callback({Errors: "Line "+e.$linenos[0]+": "+e.args[0], Result: null, Stats: ""}); 
-                    return; 
-                }
-                if(simPrintBuffer.length > 0){
-                    output.push({log: logType.PRINT, str: simPrintBuffer, time: n});
-                    simPrintBuffer = "";
+                // Control algorithm 
+                if(n % timerMultiplier == 0){               
+                    try{                    
+                        myVals[timercallback.$infos.__name__]();
+                    }
+                    catch(e){
+                        console.log("Runtime error: " + e.args[0]);
+                        callback({Errors: "Line "+e.$linenos[0]+": "+e.args[0], Result: null, Stats: ""}); 
+                        return; 
+                    }
+                    if(simPrintBuffer.length > 0){
+                        output.push({log: logType.PRINT, str: simPrintBuffer, time: n});
+                        simPrintBuffer = "";
+                    }
                 }
 
-                //// SCALE THIS LINE TO CHANGE SAMPLE RATE (AND 101/103)
-                speed = math.complex(myVals.robot.speed[0].value, myVals.robot.speed[1].value);
+//                speed = math.complex(myVals.robot.speed[0].value, myVals.robot.speed[1].value);
+                speed = math.multiply(math.complex(myVals.robot.speed[0].value, myVals.robot.speed[1].value), 50.0 / this.frameRate);
 
 //                av = math.add(math.multiply(av,0.92), math.multiply(speed,0.08));
                 av = math.add(math.multiply(av,fCoeff), math.multiply(speed,1-fCoeff));
@@ -146,7 +150,7 @@ class RobotCompiler{
                 }
 
                 xy = math.add(xy, vv);
-                L = math.multiply(L, math.Complex.fromPolar(1, -av.re)); // wheel speed is av rad/frame = 50av rad/s
+                L = math.multiply(L, math.Complex.fromPolar(1, -av.re)); // wheel speed is av rad/frame = av rad/frame
                 R = math.multiply(R, math.Complex.fromPolar(1, -av.im));            
                 output.push({log: logType.POSE, xy: xy.clone(), bearing: bearing.clone(), L: L.clone(), R: R.clone(), an: [...an]});
             }        
