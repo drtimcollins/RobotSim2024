@@ -283,23 +283,20 @@ function batchRun(){
                     cpp = cpps[trNum];  // Loop this
                     cpp.updateParams({width: o.width, length: o.length, NumberOfSensors: o.NumberOfSensors, SensorSpacing: o.SensorSpacing, WheelRadius: o.WheelRadius});
                     console.log(o);
-                    if(trNum == 0) $('#coutBox').text($('#coutBox').text() + o.ID);
+                    if(trNum == 0) $('#coutBox').text($('#coutBox').text() + '\n' + o.ID);
                     cpp.exe(o.Code, function(data){
                         console.log("Ran");
                         if(data.Errors == null){
-                            const recStr = data.Result;
-                            let recItems = recStr.split(/\r?\n/);
                             laps = [];
-                            recItems.forEach(rItem => {
-                                let recDat = rItem.split(' ');
-                                if(recDat.length == 2){
-                                    laps.push(parseInt(recDat[1]) * 20);
+                            data.Result.forEach(rItem => {
+                                if(rItem.log == logType.LAP){
+                                    laps.push(rItem.time * 1000.0 / cpp.frameRate);
                                 }
                             });
                             for(let n = laps.length-1; n > 0; n--)  laps[n] -= laps[n-1];                    
                             console.log(laps);
                             console.log(Math.min(...laps));
-                            $('#coutBox').text($('#coutBox').text() + ", " + Math.min(...laps) / 1000.0 + '\n');
+                            $('#coutBox').text($('#coutBox').text() + ", " + Math.min(...laps) / 1000.0);
                         }
                         isDone = true;
                         if(!(trNum == 2 && idNum == oArray.length-1)) setTimeout(batchProc, 0);
