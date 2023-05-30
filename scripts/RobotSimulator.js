@@ -171,17 +171,19 @@ function update() {
             gui.timers[1].setTime(lapTime * 1000.0 / frameRate);   
             gui.timers[0].setTime(Math.max((frameCount-lapStart) * 1000.0 / frameRate, 0));   
             if(frameCount - lapStart < lastTime){
-                $('#coutBox').text($('#coutBox').text() + 'Lap Time: ' + getTimeString(lapTime * 1000.0 / frameRate) + '\n');
-                var $textarea = $('#coutBox');
-                $textarea.scrollTop($textarea[0].scrollHeight);
+                consoleLogn('Lap Time: ' + getTimeString(lapTime * 1000.0 / frameRate));
+//                $('#coutBox').text($('#coutBox').text() + 'Lap Time: ' + getTimeString(lapTime * 1000.0 / frameRate) + '\n');
+//                var $textarea = $('#coutBox');
+//                $textarea.scrollTop($textarea[0].scrollHeight);
             }
             lastTime = frameCount - lapStart;
             if(nextPrint < prints.length){
                 if(frameCount >= prints[nextPrint].time){
-                    $('#coutBox').text($('#coutBox').text() + prints[nextPrint].str);
+                    consoleLog(prints[nextPrint].str);
+//                    $('#coutBox').text($('#coutBox').text() + prints[nextPrint].str);
                     nextPrint++;
-                    var $textarea = $('#coutBox');
-                    $textarea.scrollTop($textarea[0].scrollHeight);
+//                    var $textarea = $('#coutBox');
+//                    $textarea.scrollTop($textarea[0].scrollHeight);
                 }
             }
         } else {
@@ -189,11 +191,13 @@ function update() {
             if(!isRaceOver){
                 isRaceOver = true;
                 if(bestTime < 100000)
-                    $('#coutBox').text($('#coutBox').text() + 'Simulation over. Best lap: ' + getTimeString(bestTime * 1000.0 / frameRate) + '\n');
+                    consoleLogn('Simulation over. Best lap: ' + getTimeString(bestTime * 1000.0 / frameRate));
+//                    $('#coutBox').text($('#coutBox').text() + 'Simulation over. Best lap: ' + getTimeString(bestTime * 1000.0 / frameRate) + '\n');
                 else
-                    $('#coutBox').text($('#coutBox').text() + 'Simulation over. No complete laps recorded.' + '\n');
-                var $textarea = $('#coutBox');
-                $textarea.scrollTop($textarea[0].scrollHeight);
+                    consoleLogn('Simulation over. No complete laps recorded.');
+//                    $('#coutBox').text($('#coutBox').text() + 'Simulation over. No complete laps recorded.' + '\n');
+//                var $textarea = $('#coutBox');
+//                $textarea.scrollTop($textarea[0].scrollHeight);
             }
         }
     }
@@ -234,6 +238,18 @@ function update() {
     requestAnimationFrame( update );
 }
 
+function consoleLog(x){
+    $('#coutBox').text($('#coutBox').text() + x);
+    var $textarea = $('#coutBox');
+    $textarea.scrollTop($textarea[0].scrollHeight);
+}
+function consoleLogn(x){
+    consoleLog(x + '\n');
+}
+function consoleClear(){
+    $('#coutBox').text('');
+}
+
 function getTimeString(ms){
     let ts = "";
     var digits = new Array(6);
@@ -269,7 +285,8 @@ function batchRun(){
     xmlhttp.onreadystatechange = function() {
         if (this.readyState == 4 && this.status == 200) {
             var oArray = JSON.parse(this.responseText);
-            $('#coutBox').text('');
+            //$('#coutBox').text('');
+            consoleClear();
 
             var idNum = -1;
             var trNum = 2;
@@ -283,7 +300,7 @@ function batchRun(){
                     cpp = cpps[trNum];  // Loop this
                     cpp.updateParams({width: o.width, length: o.length, NumberOfSensors: o.NumberOfSensors, SensorSpacing: o.SensorSpacing, WheelRadius: o.WheelRadius});
                     console.log(o);
-                    if(trNum == 0) $('#coutBox').text($('#coutBox').text() + '\n' + o.ID);
+                    if(trNum == 0) consoleLog('\n' + o.ID); // $('#coutBox').text($('#coutBox').text() + '\n' + o.ID);
                     cpp.exe(o.Code, function(data){
                         console.log("Ran");
                         if(data.Errors == null){
@@ -296,7 +313,8 @@ function batchRun(){
                             for(let n = laps.length-1; n > 0; n--)  laps[n] -= laps[n-1];                    
                             console.log(laps);
                             console.log(Math.min(...laps));
-                            $('#coutBox').text($('#coutBox').text() + ", " + Math.min(...laps) / 1000.0);
+                            consoleLog(", " + Math.min(...laps) / 1000.0);
+                            //$('#coutBox').text($('#coutBox').text() + ", " + Math.min(...laps) / 1000.0);
                         }
                         isDone = true;
                         if(!(trNum == 2 && idNum == oArray.length-1)) setTimeout(batchProc, 0);
@@ -313,7 +331,9 @@ function runCode(trackIndex){
 //    if(robot.shape.radius > 125){
 //        $('#coutBox').text("Fail\nRobot is too big. Maximum diameter = 250mm, robot diameter = "+(robot.shape.radius*2.0).toFixed(1)+"mm\n"); 
     if(!robot.shape.sizeOK){
-        $('#coutBox').text("Fail\nRobot is too big. See the project specification for limits.\n"); 
+        consoleClear();
+        consoleLogn("Fail\nRobot is too big. See the project specification for limits.");
+//        $('#coutBox').text("Fail\nRobot is too big. See the project specification for limits.\n"); 
     } else {
         //$('#progress').show();
         showProgress(true);
@@ -323,20 +343,24 @@ function runCode(trackIndex){
             cpp.updateParams(robotParams);
             setTimeout(function(){
             cpp.exe(editor.getValue(), function(data){
+                rec = [];
+                laps = [];
+                prints = [];
                 if(data.Errors == null){
-                    $('#coutBox').text(data.Stats);
+                    consoleClear();
+                    consoleLog(data.Stats);
+//                    $('#coutBox').text(data.Stats);
 //                    const recStr = data.Result;
 //                    let recItems = recStr.split(/\r?\n/);
 
-                    rec = [];
-                    laps = [];
-                    prints = [];
+
                     data.Result.forEach(rItem => {
                         switch(rItem.log){
                             case logType.OK:
-                                $('#coutBox').text($('#coutBox').text() + "Compilation OK\n");
-                                var $textarea = $('#coutBox');
-                                $textarea.scrollTop($textarea[0].scrollHeight);
+                                consoleLogn("Compilation OK");
+//                                $('#coutBox').text($('#coutBox').text() + "Compilation OK\n");
+//                                var $textarea = $('#coutBox');
+//                                $textarea.scrollTop($textarea[0].scrollHeight);
                                 break;
                             case logType.LAP:
                                 laps.push(rItem.time);
@@ -350,28 +374,36 @@ function runCode(trackIndex){
                         }
 
                     });
-                    lastTime = -100;
-                    nextPrint = 0;
-                    bestTime = 100000;
-                    isRaceOver = false;
-                    splitTime = 0;
-                    splitFrameCount = -50;
-                    clk.stop();
-                    clk.elapsedTime = 0;
-                    $('#guiWin').show();
-                    $('#designerWin').hide();            
-                    parent.postMessage(0, "*");   // Scroll to top
-                    camera.change(gui.camMode * 2 + gui.camZoom);                
-                    dmode = dispMode.RACE;
-                    scene = scenes[trackIndex];
-                    robot.changeScene(scene);
-                    camera.changeScene(scene);
-                    onResize();
+ 
                 } else { // Report Errors
                     var errs = data.Errors;
-                    $('#coutBox').text('Program Build Failed\n'+errs);
-                    onIconClicked("Icon6");
+                    consoleClear();
+                    consoleLogn(data.Result);
+                    consoleLog(errs);
+//                    consoleLog('Program Build Failed\n'+errs);
+//                    $('#coutBox').text('Program Build Failed\n'+errs);
+ //                   onIconClicked("Icon6");
                 }
+
+
+                lastTime = -100;
+                nextPrint = 0;
+                bestTime = 100000;
+                isRaceOver = false;
+                splitTime = 0;
+                splitFrameCount = -50;
+                clk.stop();
+                clk.elapsedTime = 0;
+                $('#guiWin').show();
+                $('#designerWin').hide();            
+                parent.postMessage(0, "*");   // Scroll to top
+                camera.change(gui.camMode * 2 + gui.camZoom);                
+                dmode = dispMode.RACE;
+                scene = scenes[trackIndex];
+                robot.changeScene(scene);
+                camera.changeScene(scene);
+                onResize();
+
                 showProgress(false);
             });}, 100);
         }

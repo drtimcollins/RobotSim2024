@@ -87,62 +87,99 @@ class RobotCompiler{
         let N = this.track.length;
         let isLapValid = false;
         let isOverTheLine = true;
+        this.frameRate = 50;
 
         timerfreq = null;
-        let cpc = runPyCode(fn);
-        if(cpc==0 && timerfreq == null){
-            callback({Errors: "Error: No timer is set-up (need a call to robot.timer)", Result: null, Stats: ""}); 
-            return;    
-        } else if(cpc==0 && timerfreq == -1){
-            callback({Errors: "Error: Timer frequency is not set.", Result: null, Stats: ""}); 
-            return; 
+        for(let n = 0; n < NumberOfSensors; n++) {
+            sensorPos[n] = math.complex(rlength, (n - (NumberOfSensors-1.0)/2.0)*SensorSpacing);
         }
+
+        //runPyCode("pass\n"); // Clear motor speeds
+        if(typeof window.myVals != "undefined") delete window.myVals;
+        
+/*        if(typeof myVals.robot.speed[0] == "number"){
+            myVals.robot.speed[0] = 0;
+            myVals.robot.speed[1] = 0;
+        } else {
+            myVals.robot.speed[0].value = 0;
+            myVals.robot.speed[1].value = 0;
+        }*/
+
+        window.speed = [0,0];
+        let cpc = runPyCode(fn);
+        
+
+        if(cpc==0 && timerfreq == null){
+            simPrintBuffer += "\nWarning: No timer is set-up (need a call to robot.timer)\n";
+//            callback({Errors: "Warning: No timer is set-up (need a call to robot.timer)", Result: simPrintBuffer, Stats: ""});             
+//            return;    
+        } else if(cpc==0 && timerfreq == -1){
+//            callback({Errors: "Warning: Timer frequency is not set.", Result: simPrintBuffer, Stats: ""}); 
+            simPrintBuffer += "\nWarning: Timer frequency is not set.\n";
+//            return; 
+        }
+
         if(cpc == 0){
-            console.log("Timer rate = " + timerfreq.toString());
-            let timerMultiplier = Math.ceil(50.0 / timerfreq);
-            this.frameRate = timerfreq * timerMultiplier;
-            console.log("Frame rate = " + this.frameRate.toString() + ", Multiplier = " + timerMultiplier.toString()); 
+            if(typeof myVals.robot == 'undefined'){
+                myVals.robot = {an: an};
+            }        
+            this.updateSensors(an, sensorPos, bearing, xy);
+
+            let timerMultiplier = 0;
+            if(timerfreq != null) if(timerfreq > 0){
+                console.log("Timer rate = " + timerfreq.toString());
+                timerMultiplier = Math.ceil(50.0 / timerfreq);
+                this.frameRate = timerfreq * timerMultiplier;
+                console.log("Frame rate = " + this.frameRate.toString() + ", Multiplier = " + timerMultiplier.toString()); 
+            } else {
+                timerfreq = -1;
+            }
 
             let output = [{log: logType.OK}];
             if(simPrintBuffer.length > 0){
                 output.push({log: logType.PRINT, str: simPrintBuffer, time: 0});
                 simPrintBuffer = "";
             }
-            for(let n = 0; n < NumberOfSensors; n++) {
-                sensorPos[n] = math.complex(rlength, (n - (NumberOfSensors-1.0)/2.0)*SensorSpacing);
-            }
+//            for(let n = 0; n < NumberOfSensors; n++) {
+//                sensorPos[n] = math.complex(rlength, (n - (NumberOfSensors-1.0)/2.0)*SensorSpacing);
+//            }
             let iTrack = 0;  
 
             let fCoeff = Math.exp(-1/this.frameRate/0.24);
 
-            for(let n = 0; n < this.frameRate * 60; n++){
-                // Update sensors
-                for(let m = 0; m < NumberOfSensors; m++) {
-                    let sn = math.add(math.multiply(sensorPos[m], bearing) , xy); 
-                    myVals.robot.an[m] = an[m] = this.getSensorOutput(sn);
-                } 
-                // Process
 
-                // Control algorithm 
-                if(n % timerMultiplier == 0){               
-                    try{                    
-                        myVals[timercallback.$infos.__name__]();
-                    }
-                    catch(e){
-                        console.log("Runtime error: " + e.args[0]);
-                        callback({Errors: "Line "+e.$linenos[0]+": "+e.args[0], Result: null, Stats: ""}); 
-                        return; 
-                    }
-                    if(simPrintBuffer.length > 0){
-                        output.push({log: logType.PRINT, str: simPrintBuffer, time: n});
-                        simPrintBuffer = "";
+//            myVals.robot.speed[0].value = 0;
+//            myVals.robot.speed[1].value = 0;
+
+            for(let n = 0; n < this.frameRate * 60; n++){
+
+                this.updateSensors(an, sensorPos, bearing, xy);
+
+                if(timerfreq > 0){
+                    // Control algorithm 
+                    if(n % timerMultiplier == 0){               
+                        try{                    
+                            myVals[timercallback.$infos.__name__]();
+                        }
+                        catch(e){
+                            console.log("Runtime error: " + e.args[0]);
+                            callback({Errors: "Line "+e.$linenos[0]+": "+e.args[0], Result: null, Stats: ""}); 
+                            return; 
+                        }
+                        if(simPrintBuffer.length > 0){
+                            output.push({log: logType.PRINT, str: simPrintBuffer, time: n});
+                            simPrintBuffer = "";
+                        }
                     }
                 }
 
-//                speed = math.complex(myVals.robot.speed[0].value, myVals.robot.speed[1].value);
-                speed = math.multiply(math.complex(myVals.robot.speed[0].value, myVals.robot.speed[1].value), 50.0 / this.frameRate);
+                let wsp = [(typeof window.speed[0] == "number") ? window.speed[0] : window.speed[0].value,
+                            (typeof window.speed[1] == "number") ? window.speed[1] : window.speed[1].value]
 
-//                av = math.add(math.multiply(av,0.92), math.multiply(speed,0.08));
+                speed = math.multiply(math.complex(wsp[0], wsp[1]), 50.0 / this.frameRate);
+//                speed = math.multiply(math.complex(myVals.robot.speed[0].value, myVals.robot.speed[1].value), 50.0 / this.frameRate);
+//                speed = math.multiply(math.complex(myVals.robot.speed[0], myVals.robot.speed[1]), 50.0 / this.frameRate);
+
                 av = math.add(math.multiply(av,fCoeff), math.multiply(speed,1-fCoeff));
                 vv = math.multiply(bearing, WheelRadius*(av.re + av.im)/2.0);            
                 bearing = math.multiply(bearing, math.Complex.fromPolar(1, WheelRadius*(av.re-av.im)/width));
@@ -155,14 +192,7 @@ class RobotCompiler{
                         isLapValid = true;
                     }
                 }
-//                console.log(n.toString() + ", " + iTrack.toString());
-//                if(isLapValid) { //} && n < 2100 && cFront.re > 630 && cFront.re < 650){
-//                    console.log(cFront.re.toString() + " < " + (XSTART+rlength).toString() + " AND " +
-//                    math.add(cFront, vv).re.toString() + " >= " + (XSTART+rlength).toString() + " AND " +
-//                    cFront.im.toString() + " > " +  (YSTART-50).toString());
-//                }
 
-//                if(cFront.re < XSTART+rlength && math.add(cFront, vv).re >= XSTART+rlength && cFront.im > YSTART-50 && isLapValid){
                 if((!isOverTheLine) && (cFront.re >= XSTART+rlength)) isOverTheLine = true;
                 if((isOverTheLine) && (cFront.re < XSTART+rlength)) isOverTheLine = false;
                 if(isOverTheLine && cFront.im > YSTART-50 && isLapValid){
@@ -174,11 +204,20 @@ class RobotCompiler{
                 L = math.multiply(L, math.Complex.fromPolar(1, -av.re)); // wheel speed is av rad/frame = av rad/frame
                 R = math.multiply(R, math.Complex.fromPolar(1, -av.im));            
                 output.push({log: logType.POSE, xy: xy.clone(), bearing: bearing.clone(), L: L.clone(), R: R.clone(), an: [...an]});
-            }        
+            }    
+            //runPyCode("import robot\nrobot.speed = [0,0]\n");                
+//            runPyCode("import robot\nprint(type(robot.speed[0]))\n")
+            //runPyCode("import robot, browser\nbrowser.window.console.log(type(robot.speed[0]))\n")
             callback({Errors: null, Result: output, Stats: ""});        
         } else {
             callback({Errors: pyCodeError, Result: null, Stats: ""});        
         }
+    }
+    updateSensors(an, sensorPos, bearing, xy){
+        for(let m = 0; m < an.length; m++) {
+            let sn = math.add(math.multiply(sensorPos[m], bearing) , xy); 
+            myVals.robot.an[m] = an[m] = this.getSensorOutput(sn);
+        } 
     }
 }
 

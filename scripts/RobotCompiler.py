@@ -17,9 +17,11 @@ def runCode(fn):
         vals = {}
         exec(setupCode, vals)
         exec(fn, vals)
+        #browser.window.console.log(vals) 
         browser.window.myVals = vals
+        #browser.window.console.log("myVals updated.") 
         return OK
-    except  Exception as inst:
+    except Exception as inst:
         browser.window.console.log(f"Error: {inst}")
         browser.window.console.log("Error")
         browser.window.console.log(type(inst))

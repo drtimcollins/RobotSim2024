@@ -1,11 +1,11 @@
 import browser
 
-speed = [0]*2
+#speed = [0, 0]
 an = [0]*10
 
 def motor(i, x):
-	sp = int(x) & 0xFFFF
-	speed[i] = sp / 128000.0
+	sp = float(int(x) & 0xFFFF)
+	browser.window.speed[i] = sp / 128000.0
 def motors(x, y):
 	motor(0, x)
 	motor(1, y)

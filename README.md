@@ -7,10 +7,10 @@ Online JS version of line-following robot sim. Microcontroller code is compiled 
 ## To-do
 - ~~Finish analogue sensor output coding~~
 - Convert to MicroPython
-	- Non-errors but mistakes that cause malfunction need flagging
-	- Batch run not implemented yet
-	- ~~Add print messages to log window~~
-	- ~~Variable timer frequency~~
+  - Non-errors but mistakes that cause malfunction need flagging
+  - ~~Batch run not implemented yet~~
+  - ~~Add print messages to log window~~
+  - ~~Variable timer frequency~~
 - Add SCORM wrapper?
 - Add 'gear-ratio' option?
 
