@@ -17,7 +17,7 @@ def readsensors(i):
 
 browser.window.timercallback = None
 browser.window.timerfreq = None
-def timer(freq=-1, callback=None):
+def timer(frequency=-1, callback=None):
 	browser.window.timercallback = callback
-	browser.window.timerfreq = freq
+	browser.window.timerfreq = frequency
 	

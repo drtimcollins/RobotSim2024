@@ -357,7 +357,7 @@ function runCode(trackIndex){
                     data.Result.forEach(rItem => {
                         switch(rItem.log){
                             case logType.OK:
-                                consoleLogn("Compilation OK");
+                                consoleLogn("Simulation running");
 //                                $('#coutBox').text($('#coutBox').text() + "Compilation OK\n");
 //                                var $textarea = $('#coutBox');
 //                                $textarea.scrollTop($textarea[0].scrollHeight);
@@ -378,7 +378,7 @@ function runCode(trackIndex){
                 } else { // Report Errors
                     var errs = data.Errors;
                     consoleClear();
-                    consoleLogn(data.Result);
+                    if(data.Result != null) consoleLogn(data.Result);
                     consoleLog(errs);
 //                    consoleLog('Program Build Failed\n'+errs);
 //                    $('#coutBox').text('Program Build Failed\n'+errs);

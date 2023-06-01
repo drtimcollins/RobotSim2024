@@ -94,32 +94,27 @@ class RobotCompiler{
             sensorPos[n] = math.complex(rlength, (n - (NumberOfSensors-1.0)/2.0)*SensorSpacing);
         }
 
-        //runPyCode("pass\n"); // Clear motor speeds
         if(typeof window.myVals != "undefined") delete window.myVals;
-        
-/*        if(typeof myVals.robot.speed[0] == "number"){
-            myVals.robot.speed[0] = 0;
-            myVals.robot.speed[1] = 0;
-        } else {
-            myVals.robot.speed[0].value = 0;
-            myVals.robot.speed[1].value = 0;
-        }*/
 
         window.speed = [0,0];
         let cpc = runPyCode(fn);
         
 
         if(cpc==0 && timerfreq == null){
-            simPrintBuffer += "\nWarning: No timer is set-up (need a call to robot.timer)\n";
-//            callback({Errors: "Warning: No timer is set-up (need a call to robot.timer)", Result: simPrintBuffer, Stats: ""});             
-//            return;    
+            simPrintBuffer += "\nWarning: No timer is set-up (need a call to robot.timer)\n";  
         } else if(cpc==0 && timerfreq == -1){
-//            callback({Errors: "Warning: Timer frequency is not set.", Result: simPrintBuffer, Stats: ""}); 
             simPrintBuffer += "\nWarning: Timer frequency is not set.\n";
-//            return; 
+        } else if(cpc==0 && timercallback == null){ 
+            simPrintBuffer += "\nWarning: Timer callback is not set.\n";
         }
-
-        if(cpc == 0){
+        if(cpc != 0){
+            simPrintBuffer += "\nError\n" + pyCodeError + "\n";
+            timercallback = null;            
+        }
+ //       if(cpc == 0){
+            if(typeof window.myVals == "undefined"){
+                window.myVals = {robot: {an: an}};
+            }
             if(typeof myVals.robot == 'undefined'){
                 myVals.robot = {an: an};
             }        
@@ -158,13 +153,17 @@ class RobotCompiler{
                 if(timerfreq > 0){
                     // Control algorithm 
                     if(n % timerMultiplier == 0){               
-                        try{                    
-                            myVals[timercallback.$infos.__name__]();
+                        try{          
+                            if(timercallback != null){          
+                                myVals[timercallback.$infos.__name__]();
+                            }
                         }
                         catch(e){
                             console.log("Runtime error: " + e.args[0]);
-                            callback({Errors: "Line "+e.$linenos[0]+": "+e.args[0], Result: null, Stats: ""}); 
-                            return; 
+                            //callback({Errors: "Error\nLine "+e.$linenos[0]+": "+e.args[0], Result: null, Stats: ""}); 
+                            //return; 
+                            simPrintBuffer += "Error\nLine "+e.$linenos[0]+": "+e.args[0];
+                            timercallback = null;
                         }
                         if(simPrintBuffer.length > 0){
                             output.push({log: logType.PRINT, str: simPrintBuffer, time: n});
@@ -209,9 +208,9 @@ class RobotCompiler{
 //            runPyCode("import robot\nprint(type(robot.speed[0]))\n")
             //runPyCode("import robot, browser\nbrowser.window.console.log(type(robot.speed[0]))\n")
             callback({Errors: null, Result: output, Stats: ""});        
-        } else {
-            callback({Errors: pyCodeError, Result: null, Stats: ""});        
-        }
+        // } else {
+        //     callback({Errors: pyCodeError, Result: null, Stats: ""});        
+        // }
     }
     updateSensors(an, sensorPos, bearing, xy){
         for(let m = 0; m < an.length; m++) {

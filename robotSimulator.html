@@ -120,7 +120,7 @@ def RobotControl():
 	else:
 		robot.motors(0, 20000)	# Motor 0 stop, Motor 1 go (turn left)
 
-robot.timer(freq = 50, callback = RobotControl)
+robot.timer(frequency = 50, callback = RobotControl)
 			</pre>
 			<center>
 				<button class="runButton" type="button" onclick="runCode(0);">Run (Track 1)</button>
