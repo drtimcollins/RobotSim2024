@@ -172,18 +172,12 @@ function update() {
             gui.timers[0].setTime(Math.max((frameCount-lapStart) * 1000.0 / frameRate, 0));   
             if(frameCount - lapStart < lastTime){
                 consoleLogn('Lap Time: ' + getTimeString(lapTime * 1000.0 / frameRate));
-//                $('#coutBox').text($('#coutBox').text() + 'Lap Time: ' + getTimeString(lapTime * 1000.0 / frameRate) + '\n');
-//                var $textarea = $('#coutBox');
-//                $textarea.scrollTop($textarea[0].scrollHeight);
             }
             lastTime = frameCount - lapStart;
             if(nextPrint < prints.length){
                 if(frameCount >= prints[nextPrint].time){
                     consoleLog(prints[nextPrint].str);
-//                    $('#coutBox').text($('#coutBox').text() + prints[nextPrint].str);
                     nextPrint++;
-//                    var $textarea = $('#coutBox');
-//                    $textarea.scrollTop($textarea[0].scrollHeight);
                 }
             }
         } else {
@@ -192,12 +186,8 @@ function update() {
                 isRaceOver = true;
                 if(bestTime < 100000)
                     consoleLogn('Simulation over. Best lap: ' + getTimeString(bestTime * 1000.0 / frameRate));
-//                    $('#coutBox').text($('#coutBox').text() + 'Simulation over. Best lap: ' + getTimeString(bestTime * 1000.0 / frameRate) + '\n');
                 else
                     consoleLogn('Simulation over. No complete laps recorded.');
-//                    $('#coutBox').text($('#coutBox').text() + 'Simulation over. No complete laps recorded.' + '\n');
-//                var $textarea = $('#coutBox');
-//                $textarea.scrollTop($textarea[0].scrollHeight);
             }
         }
     }
@@ -328,14 +318,10 @@ function batchRun(){
 }
 
 function runCode(trackIndex){
-//    if(robot.shape.radius > 125){
-//        $('#coutBox').text("Fail\nRobot is too big. Maximum diameter = 250mm, robot diameter = "+(robot.shape.radius*2.0).toFixed(1)+"mm\n"); 
     if(!robot.shape.sizeOK){
         consoleClear();
         consoleLogn("Fail\nRobot is too big. See the project specification for limits.");
-//        $('#coutBox').text("Fail\nRobot is too big. See the project specification for limits.\n"); 
     } else {
-        //$('#progress').show();
         showProgress(true);
         console.log("RUN CODE");    
         cpp = cpps[trackIndex];
@@ -349,18 +335,11 @@ function runCode(trackIndex){
                 if(data.Errors == null){
                     consoleClear();
                     consoleLog(data.Stats);
-//                    $('#coutBox').text(data.Stats);
-//                    const recStr = data.Result;
-//                    let recItems = recStr.split(/\r?\n/);
-
 
                     data.Result.forEach(rItem => {
                         switch(rItem.log){
                             case logType.OK:
                                 consoleLogn("Simulation running");
-//                                $('#coutBox').text($('#coutBox').text() + "Compilation OK\n");
-//                                var $textarea = $('#coutBox');
-//                                $textarea.scrollTop($textarea[0].scrollHeight);
                                 break;
                             case logType.LAP:
                                 laps.push(rItem.time);
@@ -380,11 +359,7 @@ function runCode(trackIndex){
                     consoleClear();
                     if(data.Result != null) consoleLogn(data.Result);
                     consoleLog(errs);
-//                    consoleLog('Program Build Failed\n'+errs);
-//                    $('#coutBox').text('Program Build Failed\n'+errs);
- //                   onIconClicked("Icon6");
                 }
-
 
                 lastTime = -100;
                 nextPrint = 0;
