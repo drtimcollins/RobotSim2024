@@ -7,7 +7,7 @@ import { RobotGui } from './RobotGui.js';
 import { SmartCam } from './SmartCam.js';
 import { RobotCompiler, logType } from './RobotCompiler.js';
 import { Stats } from './Stats.js';
-
+import presetData from '../presets.json' assert { type: 'json' };
 const dispMode = {DESIGN:1, RACE:2};
 var dmode = dispMode.DESIGN;
 
@@ -415,33 +415,42 @@ function uploadDesign(event){
     var reader = new FileReader();
     reader.onload = function(event){
         var o = JSON.parse(event.target.result);
-        if(o.WheelRadius == undefined) o.WheelRadius = 20;
-        $('#sliderLength').val(o.length);
-        $('#inputLength').val(o.length);
-        $('#sliderWidth').val(o.width);
-        $('#inputWidth').val(o.width);        
-        $('#sliderWheelDiameter').val(o.WheelRadius*2);
-        $('#inputWheelDiameter').val(o.WheelRadius*2);                
-        $('#sliderSpacing').val(o.SensorSpacing);
-        $('#inputSpacing').val(o.SensorSpacing);
-        $('#sliderNumSensors').val(o.NumberOfSensors);
-        $('#inputNumSensors').val(o.NumberOfSensors);
-        robotParams.width = o.width;
-        robotParams.length = o.length;
-        robotParams.WheelRadius = o.WheelRadius;
-        robotParams.NumberOfSensors = o.NumberOfSensors;
-        robotParams.SensorSpacing = o.SensorSpacing;
-        robot.shape.setSize(robotParams);
-        robot.shape.setBodyColour('#'+o.BodyColour);
-        robot.shape.setWheelColour('#'+o.WheelColour);
-        $('#botColour').val('#'+o.BodyColour);
-        $('#wheelColour').val('#'+o.WheelColour);
-        $('input:radio[name=LEDcolor][value='+o.LEDColour+']').click();
-        editor.setValue(o.Code);
-        editor.clearSelection();
+        decodeJson(o);
     }
     reader.readAsText(event.target.files[0]);
     $('#selectFiles').val("");
+}
+
+function decodeJson(o){
+    if(o.WheelRadius == undefined) o.WheelRadius = 20;
+    $('#sliderLength').val(o.length);
+    $('#inputLength').val(o.length);
+    $('#sliderWidth').val(o.width);
+    $('#inputWidth').val(o.width);        
+    $('#sliderWheelDiameter').val(o.WheelRadius*2);
+    $('#inputWheelDiameter').val(o.WheelRadius*2);                
+    $('#sliderSpacing').val(o.SensorSpacing);
+    $('#inputSpacing').val(o.SensorSpacing);
+    $('#sliderNumSensors').val(o.NumberOfSensors);
+    $('#inputNumSensors').val(o.NumberOfSensors);
+    robotParams.width = o.width;
+    robotParams.length = o.length;
+    robotParams.WheelRadius = o.WheelRadius;
+    robotParams.NumberOfSensors = o.NumberOfSensors;
+    robotParams.SensorSpacing = o.SensorSpacing;
+    robot.shape.setSize(robotParams);
+    robot.shape.setBodyColour('#'+o.BodyColour);
+    robot.shape.setWheelColour('#'+o.WheelColour);
+    $('#botColour').val('#'+o.BodyColour);
+    $('#wheelColour').val('#'+o.WheelColour);
+    $('input:radio[name=LEDcolor][value='+o.LEDColour+']').click();
+    editor.setValue(o.Code);
+    editor.clearSelection();
+}
+
+function loadpreset(id){
+    console.log("loading preset");
+    decodeJson(presetData[id]);
 }
 
 window.batchRun = batchRun;
@@ -449,4 +458,5 @@ window.runCode = runCode;
 window.downloadDesign = downloadDesign;
 window.uploadDesign = uploadDesign;
 window.onSliderChanged = onSliderChanged;
+window.loadpreset = loadpreset;
 export{MAXSENSORS};
