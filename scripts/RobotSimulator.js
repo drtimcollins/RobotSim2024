@@ -7,7 +7,7 @@ import { RobotGui } from './RobotGui.js';
 import { SmartCam } from './SmartCam.js';
 import { RobotCompiler, logType } from './RobotCompiler.js';
 import { Stats } from './Stats.js';
-import presetData from '../presets.json' assert { type: 'json' };
+//import presetData from '../presets.json' assert { type: 'json' };
 const dispMode = {DESIGN:1, RACE:2};
 var dmode = dispMode.DESIGN;
 
@@ -447,16 +447,16 @@ function decodeJson(o){
     editor.setValue(o.Code);
     editor.clearSelection();
 }
-
+/*
 function loadpreset(id){
     console.log("loading preset");
     decodeJson(presetData[id]);
-}
+}*/
 
 window.batchRun = batchRun;
 window.runCode = runCode;
 window.downloadDesign = downloadDesign;
 window.uploadDesign = uploadDesign;
 window.onSliderChanged = onSliderChanged;
-window.loadpreset = loadpreset;
+//window.loadpreset = loadpreset;
 export{MAXSENSORS};
