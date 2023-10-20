@@ -114,7 +114,7 @@
 import robot
 
 def RobotControl():
-	a = robot.readsensor(0)
+	a = robot.sensor[0].read()
 	if(a > 16500):
 		robot.motors(20000, 0)	# Motor 0 go, Motor 1 stop (turn right)
 	else:
