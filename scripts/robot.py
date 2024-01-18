@@ -23,6 +23,21 @@ def readsensors(i):
 	return an[0:i]
 sensor = ()
 
+class Pin:
+	def on(self):
+		pass
+	def off(self):
+		pass
+	def value(self,x):
+		pass
+	def toggle(self):
+		pass
+led = (Pin(),Pin(),Pin())
+
+def isButtonPressed():
+	return True
+def isButtonToggleOn():
+	return True
 def _initialise():
     global sensor
     for n in range(6):
