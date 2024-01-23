@@ -115,10 +115,12 @@ import robot
 
 def RobotControl():
 	a = robot.sensor[0].read()
-	if(a > 16500):
-		robot.motors(20000, 0)	# Motor 0 go, Motor 1 stop (turn right)
+	if a > 16500:
+		robot.motor[0].speed(20000)	# Motor 0 go...
+		robot.motor[1].speed(0)		# Motor 1 stop (turn right)
 	else:
-		robot.motors(0, 20000)	# Motor 0 stop, Motor 1 go (turn left)
+		robot.motor[0].speed(0)		# Motor 0 stop...
+		robot.motor[1].speed(20000)	# Motor 1 go (turn left)
 
 robot.timer(frequency = 50, callback = RobotControl)
 			</pre>

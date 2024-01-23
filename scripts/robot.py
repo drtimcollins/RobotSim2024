@@ -10,9 +10,9 @@ class _MotorOutput:
 		sp = float(int(x) & 0xFFFF)
 		browser.window.speed[self.i] = sp / 128000.0	
 motor = (_MotorOutput(0), _MotorOutput(1))
-def motors(x, y):
-    motor[0].speed(x)
-    motor[1].speed(y)
+#def motors(x, y):
+#    motor[0].speed(x)
+#    motor[1].speed(y)
 
 class _SensorInput:
 	def __init__(self, index):
