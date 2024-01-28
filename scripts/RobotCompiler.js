@@ -52,7 +52,8 @@ class RobotCompiler{
         else
             d = P.sub(A).abs();
         
-        return Math.round(52760.0*Math.cos(1.5-Math.exp(0.4055-0.007*Math.pow(Math.abs(d),2.45))));
+        //return Math.round(52760.0*Math.cos(1.5-Math.exp(0.4055-0.007*Math.pow(Math.abs(d),2.45))));
+        return Math.round(47300.0*Math.cos(1.35-Math.exp(0.3-0.0008*Math.pow(Math.abs(d),3.2))));
     }
 
     toComplex(p){ // Convert THREE.Vector2 to math.complex

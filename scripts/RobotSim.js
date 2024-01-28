@@ -1,5 +1,5 @@
 import { RobotShape } from './RobotShape.js';
-const black_threshold = 16500;
+const black_threshold = 25000;
 
 class RobotSim {
     constructor(scene, params){
